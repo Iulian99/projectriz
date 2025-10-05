@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               Int        @id @default(autoincrement())
+  identifier       String     @unique
+  email            String     @unique
+  password         String
+  name             String
+  role             String     @default("user")
+  avatar           String?
+  department       String?
+  badge            String?
+  position         String?
+  employeeCode     String?
+  unit             String?
+  phone            String?
+  address          String?
+  birthDate        DateTime?
+  hireDate         DateTime?
+  status           String     @default("active")
+  managerId        Int?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  backgroundColor  String?    @default("#f9fafb")
+  resetToken       String?
+  resetTokenExpiry DateTime?
+  activities       Activity[]
+  manager          User?      @relation("UserManager", fields: [managerId], references: [id])
+  subordinates     User[]     @relation("UserManager")
+
+  @@map("users")
+}
+
+model Activity {
+  id           Int      @id @default(autoincrement())
+  date         DateTime @default(now())
+  activity     String
+  work         String
+  status       String   @default("Completat")
+  userId       Int
+  baseAct      String?
+  attributes   String?
+  complexity   String?
+  timeSpent    Int?
+  observations String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("activities")
+}

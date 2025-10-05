@@ -1,0 +1,11 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Fix activity redirect page",
+			"type": "shell",
+			"command": "echo \"use client\";\nimport React, { useEffect } from \"react\";\nimport { useRouter } from \"next/navigation\";\n\nexport default function NewActivityPage() {\n  const router = useRouter();\n  \n  // Redirect către pagina zilei curente\n  useEffect(() => {\n    // Obține data curentă\n    const now = new Date();\n    const year = now.getFullYear();\n    const month = String(now.getMonth() + 1).padStart(2, '0');\n    const day = String(now.getDate()).padStart(2, '0');\n    \n    // Redirecționează către pagina zilnică\n    router.push(`/reports/daily/${year}/${month}/${day}`);\n  }, [router]);\n  \n  // Afișează un indicator de încărcare până la redirecționare\n  return (\n    <div className=\"min-h-screen bg-gray-50 pt-20 flex items-center justify-center\">\n      <div className=\"text-center\">\n        <div className=\"animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4\"></div>\n        <p className=\"text-gray-600\">Redirecționare către formular...</p>\n      </div>\n    </div>\n  );\n} > \"d:/ProjectRIZ/projectriz/src/app/reports/activity/new/page.tsx\"",
+			"args": []
+		}
+	]
+}

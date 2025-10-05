@@ -19,6 +19,164 @@
   }
 }
 
+/* Animații dinamice cu val sinusoidal pentru calendar */
+@keyframes fillWater {
+  to {
+    height: var(--target-height);
+    opacity: 0.9;
+  }
+}
+
+/* Val sinusoidal dinamic - efect realist de apă */
+@keyframes sinusoidalWave {
+  0% {
+    transform: translateX(-100%) scaleY(1);
+  }
+  25% {
+    transform: translateX(-50%) scaleY(1.15);
+  }
+  50% {
+    transform: translateX(0%) scaleY(1.3);
+  }
+  75% {
+    transform: translateX(50%) scaleY(1.15);
+  }
+  100% {
+    transform: translateX(100%) scaleY(1);
+  }
+}
+
+/* Val secundar pentru efect suprapus */
+@keyframes secondaryWave {
+  0% {
+    transform: translateX(100%) scaleY(1.1);
+  }
+  33% {
+    transform: translateX(33%) scaleY(1.25);
+  }
+  66% {
+    transform: translateX(-33%) scaleY(1.4);
+  }
+  100% {
+    transform: translateX(-100%) scaleY(1.1);
+  }
+}
+
+/* Efect de suprafață dinamică cu sclipiri */
+@keyframes waterSparkle {
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    opacity: 0.6;
+    transform: scale(1.2) rotate(90deg);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.4) rotate(180deg);
+  }
+  75% {
+    opacity: 0.4;
+    transform: scale(1.1) rotate(270deg);
+  }
+}
+
+/* Hover dinamic cu val intensificat */
+@keyframes hoverWaveBoost {
+  0% {
+    transform: scale(1) translateY(0);
+  }
+  50% {
+    transform: scale(1.1) translateY(-2px);
+  }
+  100% {
+    transform: scale(1.05) translateY(-1px);
+  }
+}
+
+/* Clase dinamice pentru efecte de val sinusoidal */
+.water-fill {
+  animation: fillWater 1.2s ease-out forwards;
+  will-change: height, opacity;
+}
+
+.wave-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+/* Val principal sinusoidal */
+.sinusoidal-wave {
+  animation: sinusoidalWave 4s ease-in-out infinite;
+  will-change: transform;
+  background: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.3),
+    rgba(255, 255, 255, 0.1)
+  );
+}
+
+/* Val secundar pentru efect suprapus */
+.secondary-wave {
+  animation: secondaryWave 3s ease-in-out infinite reverse;
+  will-change: transform;
+  background: linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0.05)
+  );
+}
+
+/* Suprafața apei cu sclipiri */
+.water-sparkle {
+  animation: waterSparkle 2s ease-in-out infinite;
+  will-change: opacity, transform;
+}
+
+/* Efecte pentru hover - valuri intensificate */
+.calendar-day:hover .water-fill {
+  animation: hoverWaveBoost 0.6s ease-out forwards;
+  transition: all 0.3s ease;
+}
+
+.calendar-day:hover .sinusoidal-wave {
+  animation-duration: 2s;
+  animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.calendar-day:hover .secondary-wave {
+  animation-duration: 1.5s;
+  animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Disable animațiile pentru utilizatorii cu prefer-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .water-fill,
+  .sinusoidal-wave,
+  .secondary-wave,
+  .water-sparkle {
+    animation: none;
+  }
+
+  .calendar-day:hover .water-fill {
+    animation: none;
+    opacity: 0.8;
+    filter: brightness(1.1);
+  }
+
+  .calendar-day:hover .sinusoidal-wave,
+  .calendar-day:hover .secondary-wave {
+    animation: none;
+  }
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

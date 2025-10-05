@@ -1,0 +1,599 @@
+"use client";
+import React, { useState, useEffect, useCallback } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import Link from "next/link";
+
+interface Activity {
+  id: number;
+  date: string;
+  employee: string;
+  activity: string;
+  work: string;
+  status: string;
+}
+
+export default function DashboardPage() {
+  const { user } = useAuth();
+  const [recentActivities, setRecentActivities] = useState<Activity[]>([]);
+  const [loading,               <div className="space-y-1">
+                <label className="block text-xs font-medium text-gray-700">
+                  Perioada pentru raport:
+                </label>
+                <select
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(e.target.value)}
+                  className="w-full px-2.5 py-1.5 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-xs"
+                >g] = useState(true);
+  const [generatingReport, setGeneratingReport] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${(now.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}`;
+  });
+
+  // State pentru statistici calculate
+  const [dashboardStats, setDashboardStats] = useState({
+    completedDays: 0,
+    totalWorkingDays: 0,
+    performanceRate: 0,
+    performanceTrend: 0,
+    avgResponseTime: 0,
+    responseTrend: 0,
+  });
+
+  // Funcție pentru calcularea zilelor lucrătoare într-o lună
+  const getWorkingDaysInMonth = (year: number, month: number) => {
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    let workingDays = 0;
+
+    for (let d = firstDay; d <= lastDay; d.setDate(d.getDate() + 1)) {
+      const dayOfWeek = d.getDay();
+      // Excludem weekendul (0 = Duminică, 6 = Sâmbătă)
+      if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+        workingDays++;
+      }
+    }
+    return workingDays;
+  };
+
+  // Funcție pentru calcularea statisticilor
+  const calculateStats = useCallback((activities: Activity[]) => {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const previousMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+    const previousYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+
+    // Activități din luna curentă
+    const currentMonthActivities = activities.filter((activity) => {
+      const activityDate = new Date(activity.date);
+      return (
+        activityDate.getMonth() === currentMonth &&
+        activityDate.getFullYear() === currentYear
+      );
+    });
+
+    // Activități din luna precedentă
+    const previousMonthActivities = activities.filter((activity) => {
+      const activityDate = new Date(activity.date);
+      return (
+        activityDate.getMonth() === previousMonth &&
+        activityDate.getFullYear() === previousYear
+      );
+    });
+
+    // Zile completate luna curentă
+    const currentCompletedDays = [
+      ...new Set(
+        currentMonthActivities.map((activity) =>
+          new Date(activity.date).getDate()
+        )
+      ),
+    ].length;
+
+    // Zile completate luna precedentă
+    const previousCompletedDays = [
+      ...new Set(
+        previousMonthActivities.map((activity) =>
+          new Date(activity.date).getDate()
+        )
+      ),
+    ].length;
+
+    // Zile lucrătoare totale
+    const totalWorkingDays = getWorkingDaysInMonth(currentYear, currentMonth);
+    const previousWorkingDays = getWorkingDaysInMonth(
+      previousYear,
+      previousMonth
+    );
+
+    // Performanță (procentaj completare)
+    const currentPerformance =
+      totalWorkingDays > 0
+        ? Math.round((currentCompletedDays / totalWorkingDays) * 100)
+        : 0;
+
+    const previousPerformance =
+      previousWorkingDays > 0
+        ? Math.round((previousCompletedDays / previousWorkingDays) * 100)
+        : 0;
+
+    const performanceTrend = currentPerformance - previousPerformance;
+
+    // Timp mediu de răspuns (simulat - în practică ar trebui calculat din timestamp-uri)
+    // Pentru demo, calculez pe baza numărului de activități pe zi
+    const avgActivitiesPerDay =
+      currentCompletedDays > 0
+        ? currentMonthActivities.length / currentCompletedDays
+        : 0;
+
+    const avgResponseTime =
+      avgActivitiesPerDay > 0
+        ? Math.round((8 / avgActivitiesPerDay) * 10) / 10 // Simulează ore pe baza încărcării
+        : 0;
+
+    const previousAvgActivitiesPerDay =
+      previousCompletedDays > 0
+        ? previousMonthActivities.length / previousCompletedDays
+        : 0;
+
+    const previousAvgResponseTime =
+      previousAvgActivitiesPerDay > 0
+        ? Math.round((8 / previousAvgActivitiesPerDay) * 10) / 10
+        : 0;
+
+    const responseTrend = avgResponseTime - previousAvgResponseTime;
+
+    return {
+      completedDays: currentCompletedDays,
+      totalWorkingDays,
+      performanceRate: currentPerformance,
+      performanceTrend,
+      avgResponseTime,
+      responseTrend,
+    };
+  }, []);
+
+  // Fetch activitățile utilizatorului
+  useEffect(() => {
+    const fetchActivities = async () => {
+      if (!user) return;
+
+      try {
+        const response = await fetch(`/api/activities?userId=${user.id}`);
+        const data = await response.json();
+
+        if (data.success) {
+          setRecentActivities(data.data);
+          // Calculează statisticile pe baza datelor
+          const stats = calculateStats(data.data);
+          setDashboardStats(stats);
+        } else {
+          console.error("Eroare la încărcarea activităților:", data.error);
+        }
+      } catch (error) {
+        console.error("Eroare la fetch activități:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchActivities();
+  }, [user, calculateStats]);
+
+  // Funcție pentru generarea raportului Excel
+  const handleGenerateReport = async () => {
+    if (!user) return;
+
+    setGeneratingReport(true);
+    try {
+      const response = await fetch(
+        `/api/reports/excel?userId=${user.id}&month=${selectedMonth}`
+      );
+
+      if (response.ok) {
+        // Creează link pentru download
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+
+        // Extrage numele fișierului din header-ul response-ului
+        const contentDisposition = response.headers.get("Content-Disposition");
+        const fileName = contentDisposition
+          ? contentDisposition.split("filename=")[1]?.replace(/"/g, "")
+          : `Raport_Activitati_${selectedMonth}.xlsx`;
+
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+
+        // Curăță resursele
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(link);
+      } else {
+        console.error("Eroare la generarea raportului");
+        alert("Eroare la generarea raportului. Încearcă din nou.");
+      }
+    } catch (error) {
+      console.error("Eroare la download raport:", error);
+      alert("Eroare la descărcarea raportului. Încearcă din nou.");
+    } finally {
+      setGeneratingReport(false);
+    }
+  };
+
+  const stats = [
+    {
+      title: "Zile Completate",
+      value: dashboardStats.completedDays.toString(),
+      change: "",
+      icon: (
+        <svg
+          className="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+          />
+        </svg>
+      ),
+    },
+    {
+      title: "Total Zile Luna",
+      value: dashboardStats.totalWorkingDays.toString(),
+      change: "",
+      icon: (
+        <svg
+          className="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+          />
+        </svg>
+      ),
+    },
+    {
+      title: "Performanță Luna",
+      value: `${dashboardStats.performanceRate}%`,
+      change:
+        dashboardStats.performanceTrend > 0
+          ? `+${dashboardStats.performanceTrend.toFixed(1)}%`
+          : dashboardStats.performanceTrend < 0
+          ? `${dashboardStats.performanceTrend.toFixed(1)}%`
+          : "",
+      icon: (
+        <svg
+          className="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+          />
+        </svg>
+      ),
+    },
+    {
+      title: "Răspuns Timp Mediu",
+      value: `${dashboardStats.avgResponseTime}h`,
+      change:
+        dashboardStats.responseTrend > 0
+          ? `+${dashboardStats.responseTrend.toFixed(1)}h`
+          : dashboardStats.responseTrend < 0
+          ? `${dashboardStats.responseTrend.toFixed(1)}h`
+          : "",
+      icon: (
+        <svg
+          className="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+      ),
+    },
+  ];
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "Completat":
+        return "bg-green-100 text-green-800";
+      case "In Progres":
+        return "bg-blue-100 text-blue-800";
+      case "In Asteptare":
+        return "bg-yellow-100 text-yellow-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 pt-16">
+      <div className="max-w-6xl mx-auto px-6 py-8">
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {stats.map((stat, index) => (
+            <div
+              key={index}
+              className="bg-white rounded-lg border border-gray-200 p-6"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
+                    {stat.icon}
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {stat.value}
+                    </p>
+                    {stat.change && (
+                      <p
+                        className={`text-sm ${
+                          stat.change.startsWith("+")
+                            ? "text-green-600"
+                            : "text-red-600"
+                        }`}
+                      >
+                        {stat.change}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4">
+                <p className="text-sm text-gray-600">{stat.title}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Recent Activities - Full Width */}
+        <div className="mb-8">
+          <div className="bg-white rounded-lg border border-gray-200">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Activități Recente
+                </h2>
+                <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                  Vezi toate
+                </button>
+              </div>
+            </div>
+            <div className="divide-y divide-gray-200">
+              {loading ? (
+                <div className="px-6 py-8 text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                  <p className="mt-2 text-sm text-gray-500">
+                    Se încarcă activitățile...
+                  </p>
+                </div>
+              ) : recentActivities.length === 0 ? (
+                <div className="px-6 py-8 text-center">
+                  <p className="text-gray-500">
+                    Nu există activități înregistrate
+                  </p>
+                </div>
+              ) : (
+                recentActivities.map((activity) => (
+                  <div
+                    key={activity.id}
+                    className="px-6 py-4 hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2 mb-1">
+                          <h3 className="font-medium text-gray-900">
+                            {activity.activity}
+                          </h3>
+                          <span
+                            className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
+                              activity.status
+                            )}`}
+                          >
+                            {activity.status}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-1">
+                          {activity.work}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {activity.date} - {activity.employee}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions and Progress - Side by Side */}
+        <div className="grid lg:grid-cols-2 gap-8">
+          {/* Quick Actions */}
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <h3 className="text-base font-semibold text-gray-900 mb-3">
+              Acțiuni Rapide
+            </h3>
+            <div className="space-y-4">
+              <Link href="/reports/activity/new">
+                <button className="w-full flex items-center justify-center px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                  <svg
+                    className="w-4 h-4 mr-1.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                    />
+                  </svg>
+                  Înregistrare Nouă
+                </button>
+              </Link>
+
+              {/* Selectorul de lună și butonul de raport */}
+              <div className="space-y-2">
+                <label className="block text-xs font-medium text-gray-700">
+                  Perioada pentru raport:
+                </label>
+                <select
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(e.target.value)}
+                  className="w-full px-2.5 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs"
+                >
+                  <option value="2025-01">Ianuarie 2025</option>
+                  <option value="2025-02">Februarie 2025</option>
+                  <option value="2025-03">Martie 2025</option>
+                  <option value="2025-04">Aprilie 2025</option>
+                  <option value="2025-05">Mai 2025</option>
+                  <option value="2025-06">Iunie 2025</option>
+                  <option value="2025-07">Iulie 2025</option>
+                  <option value="2025-08">August 2025</option>
+                  <option value="2025-09">Septembrie 2025</option>
+                  <option value="2025-10">Octombrie 2025</option>
+                  <option value="2025-11">Noiembrie 2025</option>
+                  <option value="2025-12">Decembrie 2025</option>
+                </select>
+
+                <button
+                  onClick={handleGenerateReport}
+                  disabled={generatingReport}
+                  className="w-full flex items-center justify-center px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed text-sm"
+                >
+                  <svg
+                    className="w-4 h-4 mr-1.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                  {generatingReport ? "Se generează..." : "Generează Raport"}
+                </button>
+              </div>
+
+              <Link href="/reports">
+                <button className="w-full flex items-center justify-center px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm">
+                  <svg
+                    className="w-4 h-4 mr-1.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  Vezi Calendar
+                </button>
+              </Link>
+            </div>
+          </div>
+
+          {/* Progress Overview */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Progres Luna Curentă
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <div className="flex justify-between text-sm mb-1">
+                  <span className="text-gray-600">Zile completate</span>
+                  <span className="font-medium">
+                    {dashboardStats.completedDays}/
+                    {dashboardStats.totalWorkingDays}
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-blue-600 h-2 rounded-full"
+                    style={{ width: `${dashboardStats.performanceRate}%` }}
+                  ></div>
+                </div>
+              </div>
+              <div>
+                <div className="flex justify-between text-sm mb-1">
+                  <span className="text-gray-600">Activități completate</span>
+                  <span className="font-medium">
+                    {
+                      recentActivities.filter((activity) => {
+                        const activityDate = new Date(activity.date);
+                        const now = new Date();
+                        return (
+                          activityDate.getMonth() === now.getMonth() &&
+                          activityDate.getFullYear() === now.getFullYear()
+                        );
+                      }).length
+                    }
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-green-600 h-2 rounded-full"
+                    style={{
+                      width: `${Math.min(
+                        100,
+                        dashboardStats.performanceRate
+                      )}%`,
+                    }}
+                  ></div>
+                </div>
+              </div>
+              <div>
+                <div className="flex justify-between text-sm mb-1">
+                  <span className="text-gray-600">Target performanță</span>
+                  <span className="font-medium">
+                    {dashboardStats.performanceRate}%
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-purple-600 h-2 rounded-full"
+                    style={{ width: `${dashboardStats.performanceRate}%` }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

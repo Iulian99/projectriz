@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Eye,
   EyeOff,
@@ -10,63 +10,10 @@ import {
   AlertCircle,
   CheckCircle,
 } from "lucide-react";
-import MainApp from "@/components/MainApp";
-import ConditionalLayout from "@/components/ConditionalLayout";
+import LoginWaterBubbles from "@/components/WaterBubbles";
+import LoginDynamicTitle from "@/components/DynamicTitle";
 import Link from "next/link";
 import { useAuth } from "../contexts/AuthContext";
-
-// Componentă pentru titlu dinamic
-const DynamicTitle = () => {
-  const [currentWordIndex, setCurrentWordIndex] = useState(0);
-  const [displayText, setDisplayText] = useState("");
-  const [isTyping, setIsTyping] = useState(true);
-
-  const words = [
-    { text: "Raport Individual Zilnic", color: "text-blue-600" },
-    { text: "Analiza ta Personală", color: "text-purple-600" },
-    { text: "Progres și Performanță", color: "text-green-600" },
-    { text: "Date în Timp Real", color: "text-orange-600" },
-  ];
-
-  useEffect(() => {
-    const currentWord = words[currentWordIndex].text;
-
-    if (isTyping) {
-      if (displayText.length < currentWord.length) {
-        const timer = setTimeout(() => {
-          setDisplayText(currentWord.slice(0, displayText.length + 1));
-        }, 100);
-        return () => clearTimeout(timer);
-      } else {
-        const timer = setTimeout(() => {
-          setIsTyping(false);
-        }, 2000);
-        return () => clearTimeout(timer);
-      }
-    } else {
-      if (displayText.length > 0) {
-        const timer = setTimeout(() => {
-          setDisplayText(displayText.slice(0, -1));
-        }, 50);
-        return () => clearTimeout(timer);
-      } else {
-        setCurrentWordIndex((prev) => (prev + 1) % words.length);
-        setIsTyping(true);
-      }
-    }
-  }, [displayText, isTyping, currentWordIndex, words]);
-
-  return (
-    <h1 className="text-3xl font-bold mb-2 h-20 flex items-center justify-center">
-      <span
-        className={`${words[currentWordIndex].color} transition-colors duration-500`}
-      >
-        {displayText}
-        <span className="animate-pulse">|</span>
-      </span>
-    </h1>
-  );
-};
 
 interface LoginFormData {
   identifier: string;
@@ -130,7 +77,10 @@ export default function LoginPage() {
 
         login(data.user);
 
-        // AuthProvider va face redirect automat către /home
+        // Redirect explicit către dashboard după login reușit
+        setTimeout(() => {
+          window.location.href = "/dashboard";
+        }, 1000);
       } else {
         setError(data.error || "Eroare la autentificare");
       }
@@ -156,17 +106,20 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-32 w-80 h-80 bg-blue-200 rounded-full opacity-20 blur-3xl"></div>
         <div className="absolute -bottom-40 -left-32 w-80 h-80 bg-purple-200 rounded-full opacity-20 blur-3xl"></div>
       </div>
 
+      {/* Water Bubbles Component */}
+      <LoginWaterBubbles />
+
       <div className="relative w-full max-w-md">
         {/* Logo/Header */}
         <div className="text-center mb-8">
-          <DynamicTitle />
+          <LoginDynamicTitle />
           <p className="text-gray-600">Conectează-te la contul tău</p>
         </div>
 
@@ -194,7 +147,7 @@ export default function LoginPage() {
                 htmlFor="identifier"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                ID sau Email
+                UID sau Email
               </label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -207,7 +160,7 @@ export default function LoginPage() {
                     handleInputChange("identifier", e.target.value)
                   }
                   className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  placeholder="Introdu ID-ul sau email-ul"
+                  placeholder="Introdu UID-ul sau email-ul"
                   disabled={isLoading}
                 />
               </div>
@@ -291,49 +244,31 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Register Link */}
-          <p className="mt-6 text-center text-sm text-gray-600">
-            Nu ai cont?{" "}
-            <Link
-              href="/register"
-              className="text-blue-600 hover:text-blue-700 font-medium"
-            >
-              Înregistrează-te aici
-            </Link>
-          </p>
-
-          {/* Demo Credentials */}
           <div className="mt-8 pt-6 border-t border-gray-100">
             <h4 className="text-sm font-semibold text-gray-700 mb-3">
               Conturi pentru test:
             </h4>
             <div className="space-y-2 text-xs text-gray-600">
               <div className="flex justify-between">
-                <span>Admin:</span>
+                <span>Director:</span>
                 <code className="bg-gray-100 px-2 py-1 rounded">
-                  admin / admin123
+                  admin_director / admin123
                 </code>
               </div>
               <div className="flex justify-between">
                 <span>User:</span>
                 <code className="bg-gray-100 px-2 py-1 rounded">
-                  john_doe / user123
+                  neaga_iulian / admin123
+                </code>
+              </div>
+              <div className="flex justify-between">
+                <span>User:</span>
+                <code className="bg-gray-100 px-2 py-1 rounded">
+                  popescu_dan / admin123
                 </code>
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Footer */}
-        <div className="mt-8 text-center text-xs text-gray-500">
-          Prin conectare, accepți{" "}
-          <Link href="/terms" className="text-blue-600 hover:text-blue-700">
-            Termenii și Condițiile
-          </Link>{" "}
-          și{" "}
-          <Link href="/privacy" className="text-blue-600 hover:text-blue-700">
-            Politica de Confidențialitate
-          </Link>
         </div>
       </div>
     </div>

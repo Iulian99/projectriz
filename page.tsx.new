@@ -1,0 +1,324 @@
+"use client";
+import React, { useState, useEffect, useCallback } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import Link from "next/link";
+
+interface Activity {
+  id: number;
+  date: string;
+  employee: string;
+  activity: string;
+  work: string;
+  status: string;
+}
+
+export default function DashboardPage() {
+  const { user } = useAuth();
+  const [recentActivities, setRecentActivities] = useState<Activity[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [generatingReport, setGeneratingReport] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${(now.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}`;
+  });
+
+  // State pentru statistici calculate
+  const [dashboardStats, setDashboardStats] = useState({
+    completedDays: 0,
+    totalWorkingDays: 0,
+    performanceRate: 0,
+    performanceTrend: 0,
+    avgResponseTime: 0,
+    responseTrend: 0,
+  });
+
+  // Funcție pentru calcularea zilelor lucrătoare într-o lună
+  const getWorkingDaysInMonth = (year: number, month: number) => {
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    let workingDays = 0;
+
+    for (let d = firstDay; d <= lastDay; d.setDate(d.getDate() + 1)) {
+      const dayOfWeek = d.getDay();
+      // Excludem weekendul (0 = Duminică, 6 = Sâmbătă)
+      if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+        workingDays++;
+      }
+    }
+    return workingDays;
+  };
+
+  // Funcție pentru calcularea statisticilor
+  const calculateStats = useCallback((activities: Activity[]) => {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const previousMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+    const previousYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+
+    // Activități din luna curentă
+    const currentMonthActivities = activities.filter((activity) => {
+      const activityDate = new Date(activity.date);
+      return (
+        activityDate.getMonth() === currentMonth &&
+        activityDate.getFullYear() === currentYear
+      );
+    });
+
+    // Activități din luna precedentă
+    const previousMonthActivities = activities.filter((activity) => {
+      const activityDate = new Date(activity.date);
+      return (
+        activityDate.getMonth() === previousMonth &&
+        activityDate.getFullYear() === previousYear
+      );
+    });
+
+    // Zile completate luna curentă
+    const currentCompletedDays = [
+      ...new Set(
+        currentMonthActivities.map((activity) =>
+          new Date(activity.date).getDate()
+        )
+      ),
+    ].length;
+
+    // Zile completate luna precedentă
+    const previousCompletedDays = [
+      ...new Set(
+        previousMonthActivities.map((activity) =>
+          new Date(activity.date).getDate()
+        )
+      ),
+    ].length;
+
+    // Zile lucrătoare totale
+    const totalWorkingDays = getWorkingDaysInMonth(currentYear, currentMonth);
+    const previousWorkingDays = getWorkingDaysInMonth(
+      previousYear,
+      previousMonth
+    );
+
+    // Performanță (procentaj completare)
+    const currentPerformance =
+      totalWorkingDays > 0
+        ? Math.round((currentCompletedDays / totalWorkingDays) * 100)
+        : 0;
+
+    const previousPerformance =
+      previousWorkingDays > 0
+        ? Math.round((previousCompletedDays / previousWorkingDays) * 100)
+        : 0;
+
+    const performanceTrend = currentPerformance - previousPerformance;
+
+    // Timp mediu de răspuns (simulat - în practică ar trebui calculat din timestamp-uri)
+    // Pentru demo, calculez pe baza numărului de activități pe zi
+    const avgActivitiesPerDay =
+      currentCompletedDays > 0
+        ? currentMonthActivities.length / currentCompletedDays
+        : 0;
+
+    const avgResponseTime =
+      avgActivitiesPerDay > 0
+        ? Math.round((8 / avgActivitiesPerDay) * 10) / 10 // Simulează ore pe baza încărcării
+        : 0;
+
+    const previousAvgActivitiesPerDay =
+      previousCompletedDays > 0
+        ? previousMonthActivities.length / previousCompletedDays
+        : 0;
+
+    const previousAvgResponseTime =
+      previousAvgActivitiesPerDay > 0
+        ? Math.round((8 / previousAvgActivitiesPerDay) * 10) / 10
+        : 0;
+
+    const responseTrend = avgResponseTime - previousAvgResponseTime;
+
+    return {
+      completedDays: currentCompletedDays,
+      totalWorkingDays,
+      performanceRate: currentPerformance,
+      performanceTrend,
+      avgResponseTime,
+      responseTrend,
+    };
+  }, []);
+
+  // Fetch activitățile utilizatorului
+  useEffect(() => {
+    const fetchActivities = async () => {
+      if (!user) return;
+
+      try {
+        const response = await fetch(`/api/activities?userId=${user.id}`);
+        const data = await response.json();
+
+        if (data.success) {
+          setRecentActivities(data.data);
+          // Calculează statisticile pe baza datelor
+          const stats = calculateStats(data.data);
+          setDashboardStats(stats);
+        } else {
+          console.error("Eroare la încărcarea activităților:", data.error);
+        }
+      } catch (error) {
+        console.error("Eroare la fetch activități:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchActivities();
+  }, [user, calculateStats]);
+
+  // Funcție pentru generarea raportului Excel
+  const handleGenerateReport = async () => {
+    if (!user) return;
+
+    setGeneratingReport(true);
+    try {
+      const response = await fetch(
+        `/api/reports/excel?userId=${user.id}&month=${selectedMonth}`
+      );
+
+      if (response.ok) {
+        // Creează link pentru download
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+
+        // Extrage numele fișierului din header-ul response-ului
+        const contentDisposition = response.headers.get("Content-Disposition");
+        const fileName = contentDisposition
+          ? contentDisposition.split("filename=")[1]?.replace(/"/g, "")
+          : `Raport_Activitati_${selectedMonth}.xlsx`;
+
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+
+        // Curăță resursele
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(link);
+      } else {
+        console.error("Eroare la generarea raportului");
+        alert("Eroare la generarea raportului. Încearcă din nou.");
+      }
+    } catch (error) {
+      console.error("Eroare la download raport:", error);
+      alert("Eroare la descărcarea raportului. Încearcă din nou.");
+    } finally {
+      setGeneratingReport(false);
+    }
+  };
+
+  const stats = [
+    {
+      title: "Zile Completate",
+      value: dashboardStats.completedDays.toString(),
+      change: "",
+      icon: (
+        <svg
+          className="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+          />
+        </svg>
+      ),
+    },
+    {
+      title: "Total Zile Luna",
+      value: dashboardStats.totalWorkingDays.toString(),
+      change: "",
+      icon: (
+        <svg
+          className="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+          />
+        </svg>
+      ),
+    },
+    {
+      title: "Performanță Luna",
+      value: `${dashboardStats.performanceRate}%`,
+      change:
+        dashboardStats.performanceTrend > 0
+          ? `+${dashboardStats.performanceTrend.toFixed(1)}%`
+          : dashboardStats.performanceTrend < 0
+          ? `${dashboardStats.performanceTrend.toFixed(1)}%`
+          : "",
+      icon: (
+        <svg
+          className="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+          />
+        </svg>
+      ),
+    },
+    {
+      title: "Răspuns Timp Mediu",
+      value: `${dashboardStats.avgResponseTime}h`,
+      change:
+        dashboardStats.responseTrend > 0
+          ? `+${dashboardStats.responseTrend.toFixed(1)}h`
+          : dashboardStats.responseTrend < 0
+          ? `${dashboardStats.responseTrend.toFixed(1)}h`
+          : "",
+      icon: (
+        <svg
+          className="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+      ),
+    },
+  ];
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "Completat":
+        return "bg-green-100 text-green-800";
+      case "In Progres":
+        return "bg-blue-100 text-blue-800";
+      case "In Asteptare":
+        return "bg-yellow-100 text-yellow-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
