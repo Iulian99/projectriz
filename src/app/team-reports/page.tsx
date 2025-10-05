@@ -160,7 +160,7 @@ export default function TeamReportsPage() {
         for (const member of members) {
           try {
             const activitiesResponse = await fetch(
-              `/api/activities?userId=${member.id}`
+              `/api/data?userId=${member.id}`
             );
             if (activitiesResponse.ok) {
               const activitiesData = await activitiesResponse.json();
@@ -197,11 +197,11 @@ export default function TeamReportsPage() {
       setIsLoading(true);
       try {
         const periodResponse = await fetch(
-          `/api/activities?userId=${selectedMember}&startDate=${dateRange.start}&endDate=${dateRange.end}`
+          `/api/data?userId=${selectedMember}&startDate=${dateRange.start}&endDate=${dateRange.end}`
         );
 
         const allResponse = await fetch(
-          `/api/activities?userId=${selectedMember}`
+          `/api/data?userId=${selectedMember}`
         );
 
         if (!periodResponse.ok || !allResponse.ok) {

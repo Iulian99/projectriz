@@ -53,7 +53,7 @@ export default function DailyReportClient({
 
       try {
         setLoading(true);
-        const url = `/api/activities?userId=${
+        const url = `/api/data?userId=${
           user.id
         }&date=${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
 
@@ -116,7 +116,7 @@ export default function DailyReportClient({
     };
 
     try {
-      const response = await fetch("/api/activities", {
+      const response = await fetch("/api/data", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -130,7 +130,7 @@ export default function DailyReportClient({
         console.log("✅ Activitate salvată cu succes:", result.data);
 
         // Refresh activities
-        const refreshUrl = `/api/activities?userId=${
+        const refreshUrl = `/api/data?userId=${
           user.id
         }&date=${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
         console.log("🔄 Refresh activități din:", refreshUrl);
@@ -173,7 +173,7 @@ export default function DailyReportClient({
     }
 
     try {
-      const response = await fetch(`/api/activities/delete?id=${activityId}`, {
+      const response = await fetch(`/api/data/delete?id=${activityId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

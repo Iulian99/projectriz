@@ -295,7 +295,7 @@ export default function DashboardPage() {
         console.log("🔍 Utilizator curent:", user);
         console.log("🔍 Fetch pentru userId:", user.id);
 
-        const response = await fetch(`/api/activities?userId=${user.id}`);
+        const response = await fetch(`/api/data?userId=${user.id}`);
         const data = await response.json();
 
         if (data.success) {

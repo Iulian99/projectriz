@@ -139,7 +139,7 @@ export default function SettingsPage() {
 
     try {
       setIsChangingPassword(true);
-      const response = await fetch("/api/user/change-password", {
+      const response = await fetch("/api/user-management/change-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

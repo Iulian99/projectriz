@@ -72,7 +72,7 @@ function ResetPasswordContent() {
     }
 
     try {
-      const response = await fetch("/api/user/reset-password", {
+      const response = await fetch("/api/user-management/reset-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
