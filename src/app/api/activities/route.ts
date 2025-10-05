@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { supabase } from "@/lib/supabase";
 
 // GET - Obține activitățile utilizatorului
 export async function GET(request: NextRequest) {
@@ -51,20 +51,45 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    const activities = await prisma.activity.findMany({
-      where: whereCondition,
-      include: {
-        user: {
-          select: {
-            name: true,
-            identifier: true,
-          },
-        },
-      },
-      orderBy: {
-        date: "desc",
-      },
-    });
+    // Construiește query-ul pentru Supabase
+    let query = supabase
+      .from("activities")
+      .select(
+        `
+        *,
+        users!activities_userId_fkey (
+          name,
+          identifier
+        )
+      `
+      )
+      .eq("userId", parseInt(userId))
+      .order("date", { ascending: false });
+
+    // Adaugă filtrele de dată
+    if (date) {
+      const selectedDate = new Date(date);
+      const nextDay = new Date(selectedDate);
+      nextDay.setDate(selectedDate.getDate() + 1);
+
+      query = query
+        .gte("date", selectedDate.toISOString())
+        .lt("date", nextDay.toISOString());
+    } else if (startDate && endDate) {
+      query = query
+        .gte("date", new Date(startDate).toISOString())
+        .lte("date", new Date(endDate).toISOString());
+    }
+
+    const { data: activities, error } = await query;
+
+    if (error) {
+      console.error("Supabase error:", error);
+      return NextResponse.json(
+        { error: "Failed to fetch activities" },
+        { status: 500 }
+      );
+    }
 
     // Definim tipul extins pentru Activity pentru a include câmpurile suplimentare
     interface ExtendedActivity {
@@ -152,24 +177,36 @@ export async function POST(request: NextRequest) {
 
     console.log("Creating activity with data:", data);
 
-    // Construim datele de bază necesare pentru Prisma
-    // Doar includem câmpurile care sunt suportate de modelul Prisma
-    const activity = await prisma.activity.create({
-      data: {
-        activity: data.activity,
-        work: data.work,
-        status: data.status || "Completat",
-        userId: parseInt(data.userId),
-        date: data.date ? new Date(data.date) : new Date(),
-        // Adăugăm doar câmpurile care există în schema Prisma
-        // Dacă vreunul din aceste câmpuri nu există în schema, Prisma va arunca o eroare
-        ...(data.baseAct ? { baseAct: data.baseAct } : {}),
-        ...(data.attributes ? { attributes: data.attributes } : {}),
-        ...(data.complexity ? { complexity: data.complexity } : {}),
-        ...(data.timeSpent ? { timeSpent: data.timeSpent } : {}),
-        ...(data.observations ? { observations: data.observations } : {}),
-      },
-    });
+    // Construim datele pentru Supabase
+    const activityData = {
+      activity: data.activity,
+      work: data.work,
+      status: data.status || "Completat",
+      userId: parseInt(data.userId),
+      date: data.date
+        ? new Date(data.date).toISOString()
+        : new Date().toISOString(),
+      // Adăugăm câmpurile opționale
+      baseAct: data.baseAct || null,
+      attributes: data.attributes || null,
+      complexity: data.complexity || null,
+      timeSpent: data.timeSpent || null,
+      observations: data.observations || null,
+    };
+
+    const { data: activity, error } = await supabase
+      .from("activities")
+      .insert([activityData])
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Supabase error:", error);
+      return NextResponse.json(
+        { error: "Failed to create activity" },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
@@ -219,11 +256,13 @@ export async function PUT(request: NextRequest) {
     }
 
     // Verifică dacă activitatea există
-    const existingActivity = await prisma.activity.findUnique({
-      where: { id: Number(id) },
-    });
+    const { data: existingActivity, error: fetchError } = await supabase
+      .from("activities")
+      .select("*")
+      .eq("id", Number(id))
+      .single();
 
-    if (!existingActivity) {
+    if (fetchError || !existingActivity) {
       return NextResponse.json(
         { error: "Activity not found" },
         { status: 404 }
@@ -233,22 +272,35 @@ export async function PUT(request: NextRequest) {
     console.log("Updating activity with data:", data);
 
     // Actualizează activitatea cu toate câmpurile disponibile
-    const updatedActivity = await prisma.activity.update({
-      where: { id: Number(id) },
-      data: {
-        activity: data.activity,
-        work: data.work,
-        status: data.status || existingActivity.status,
-        userId: parseInt(data.userId),
-        date: data.date ? new Date(data.date) : existingActivity.date,
-        // Adăugăm doar câmpurile care există în schema Prisma
-        ...(data.baseAct ? { baseAct: data.baseAct } : {}),
-        ...(data.attributes ? { attributes: data.attributes } : {}),
-        ...(data.complexity ? { complexity: data.complexity } : {}),
-        ...(data.timeSpent ? { timeSpent: data.timeSpent } : {}),
-        ...(data.observations ? { observations: data.observations } : {}),
-      },
-    });
+    const updateData = {
+      activity: data.activity,
+      work: data.work,
+      status: data.status || existingActivity.status,
+      userId: parseInt(data.userId),
+      date: data.date
+        ? new Date(data.date).toISOString()
+        : existingActivity.date,
+      baseAct: data.baseAct || null,
+      attributes: data.attributes || null,
+      complexity: data.complexity || null,
+      timeSpent: data.timeSpent || null,
+      observations: data.observations || null,
+    };
+
+    const { data: updatedActivity, error: updateError } = await supabase
+      .from("activities")
+      .update(updateData)
+      .eq("id", Number(id))
+      .select()
+      .single();
+
+    if (updateError) {
+      console.error("Supabase update error:", updateError);
+      return NextResponse.json(
+        { error: "Failed to update activity" },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
@@ -277,11 +329,13 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Verifică dacă activitatea există
-    const existingActivity = await prisma.activity.findUnique({
-      where: { id: Number(activityId) },
-    });
+    const { data: existingActivity, error: fetchError } = await supabase
+      .from("activities")
+      .select("*")
+      .eq("id", Number(activityId))
+      .single();
 
-    if (!existingActivity) {
+    if (fetchError || !existingActivity) {
       return NextResponse.json(
         { success: false, error: "Activitatea nu a fost găsită" },
         { status: 404 }
@@ -289,9 +343,18 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Șterge activitatea din baza de date
-    await prisma.activity.delete({
-      where: { id: Number(activityId) },
-    });
+    const { error: deleteError } = await supabase
+      .from("activities")
+      .delete()
+      .eq("id", Number(activityId));
+
+    if (deleteError) {
+      console.error("Supabase delete error:", deleteError);
+      return NextResponse.json(
+        { success: false, error: "Eroare la ștergerea activității" },
+        { status: 500 }
+      );
+    }
 
     console.log(`Activity deleted successfully with ID: ${activityId}`);
 

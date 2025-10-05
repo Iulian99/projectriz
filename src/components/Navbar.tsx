@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAuth, useRole } from "../app/contexts/AuthContext";
-import { useBackgroundColor } from "../app/contexts/BackgroundColorContext";
+// import { useBackgroundColor } from "../app/contexts/BackgroundColorContext"; // Commented out as it's not used
 import RizLogo from "./RizLogo";
 
 const Navbar: React.FC = () => {
@@ -12,7 +12,7 @@ const Navbar: React.FC = () => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const pathname = usePathname();
   const { user, logout } = useAuth();
-  const { isDarkMode } = useBackgroundColor();
+  // const { isDarkMode } = useBackgroundColor(); // Commented out as it's not used
 
   const handleLogout = async () => {
     try {

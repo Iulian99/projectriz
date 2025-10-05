@@ -1,4 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ProjectRIZ
+
+Aplicație de management al activităților zilnice construită cu Next.js și Supabase.
+
+## 🚀 Configurare Supabase
+
+### 1. Creează proiectul Supabase
+
+1. Accesează [Supabase Dashboard](https://supabase.com/dashboard)
+2. Creează un proiect nou
+3. Salvează:
+   - **Project URL**: `https://[your-project-ref].supabase.co`
+   - **Project API Key (anon public)**: Găsești în Settings > API
+   - **Database Password**: Parola pe care ai setat-o
+
+### 2. Configurează variabilele de mediu
+
+1. Copiază `.env.example` la `.env.local`:
+
+   ```bash
+   cp .env.example .env.local
+   ```
+
+2. Completează în `.env.local`:
+   ```env
+   DATABASE_URL="postgresql://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-REF].supabase.co:5432/postgres"
+   NEXT_PUBLIC_SUPABASE_URL="https://[YOUR-PROJECT-REF].supabase.co"
+   NEXT_PUBLIC_SUPABASE_ANON_KEY="[YOUR-ANON-KEY]"
+   JWT_SECRET="your-jwt-secret-here"
+   ```
+
+### 3. Setup baza de date
+
+```bash
+# Generează clientul Prisma
+npx prisma generate
+
+# Aplicarea migrărilor în Supabase
+npx prisma db push
+
+# Populare cu date inițiale (opțional)
+npm run db:seed
+```
+
+Sau rulează script-ul automat:
+
+```bash
+bash setup-supabase.sh
+```
+
+## 🛠️ Comenzi utile
+
+```bash
+# Dezvoltare
+npm run dev
+
+# Build pentru producție
+npm run build
+npm start
+
+# Prisma commands
+npx prisma studio          # Prisma Studio pentru vizualizarea datelor
+npx prisma db push         # Aplică schimbări schema în baza de date
+npx prisma generate        # Generează clientul Prisma
+npm run db:seed           # Rulează seed-ul bazei de date
+```
 
 ## Getting Started
 

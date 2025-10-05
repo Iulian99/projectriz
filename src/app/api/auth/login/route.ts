@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
         identifier: user.identifier,
         avatar: user.avatar || undefined,
         department: user.department || undefined,
-        backgroundColor: (user as any).backgroundColor || "#f9fafb",
+        backgroundColor: (user as { backgroundColor?: string }).backgroundColor || "#f9fafb",
       },
     };
 

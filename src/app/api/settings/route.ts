@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       settings: {
-        backgroundColor: (user as any).backgroundColor || "#f9fafb",
+        backgroundColor: (user as { backgroundColor?: string }).backgroundColor || "#f9fafb",
       },
     });
   } catch (error) {
@@ -88,14 +88,14 @@ export async function PATCH(request: NextRequest) {
     // Actualizează culoarea de fundal
     const updatedUser = await prisma.user.update({
       where: { id: parseInt(userId) },
-      data: { backgroundColor } as any,
+      data: { backgroundColor } as { backgroundColor: string },
     });
 
     return NextResponse.json({
       success: true,
       message: "Setările au fost actualizate cu succes",
       settings: {
-        backgroundColor: (updatedUser as any).backgroundColor,
+        backgroundColor: (updatedUser as { backgroundColor?: string }).backgroundColor,
       },
     });
   } catch (error) {
