@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { UserService } from "@/lib/database";
+import { supabase } from "@/lib/supabase";
 
 interface LoginRequest {
   identifier: string;
@@ -41,9 +41,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const user = await UserService.findByIdentifier(identifier);
+    // Caută utilizatorul în Supabase
+    const { data: user, error: fetchError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('identifier', identifier)
+      .single();
 
-    if (!user) {
+    if (fetchError || !user) {
       console.log("❌ Utilizator nu a fost găsit:", identifier);
       return NextResponse.json(
         {
