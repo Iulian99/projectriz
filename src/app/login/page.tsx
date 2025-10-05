@@ -61,7 +61,7 @@ export default function LoginPage() {
     setSuccess("");
 
     try {
-      const response = await fetch("/api/login-user", {
+      const response = await fetch("/authenticate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
