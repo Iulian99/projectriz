@@ -61,10 +61,12 @@ export default function LoginPage() {
     setSuccess("");
 
     try {
-      const response = await fetch("/authenticate", {
+      const response = await fetch("/api/login-user", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "X-Vercel-Skip-Toolbar": "1",
+          "X-Vercel-Protection-Bypass": "1"
         },
         credentials: "include",
         body: JSON.stringify(formData),
