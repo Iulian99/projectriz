@@ -95,7 +95,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = async () => {
     try {
       // Apelează API-ul de logout
-      await fetch("/api/auth/logout", {
+      await fetch("/api/user/logout", {
         method: "POST",
         credentials: "include",
       });

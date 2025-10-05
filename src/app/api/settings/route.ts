@@ -28,7 +28,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       settings: {
-        backgroundColor: (user as { backgroundColor?: string }).backgroundColor || "#f9fafb",
+        backgroundColor:
+          (user as { backgroundColor?: string }).backgroundColor || "#f9fafb",
       },
     });
   } catch (error) {
@@ -95,7 +96,8 @@ export async function PATCH(request: NextRequest) {
       success: true,
       message: "Setările au fost actualizate cu succes",
       settings: {
-        backgroundColor: (updatedUser as { backgroundColor?: string }).backgroundColor,
+        backgroundColor: (updatedUser as { backgroundColor?: string })
+          .backgroundColor,
       },
     });
   } catch (error) {
