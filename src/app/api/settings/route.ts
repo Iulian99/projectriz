@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 
-// GET - Obține setările utilizatorului
+// GET - Setari
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// PATCH - Actualizează setările utilizatorului
+// PATCH - actualizare Setari
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
@@ -63,7 +63,7 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    // Validează formatul culorii (hex color)
+    // Formatul culorii (hex color)
     const hexColorRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
     if (!hexColorRegex.test(backgroundColor)) {
       return NextResponse.json(
@@ -76,7 +76,7 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    // Verifică dacă utilizatorul există
+    // Verificare utilizator existent
     const { data: existingUser, error: fetchError } = await supabase
       .from("users")
       .select("*")
@@ -90,7 +90,7 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    // Actualizează culoarea de fundal
+    // Actualizare culoarea de fundal
     const { data: updatedUser, error: updateError } = await supabase
       .from("users")
       .update({ backgroundColor })

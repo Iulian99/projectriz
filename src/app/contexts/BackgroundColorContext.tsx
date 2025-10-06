@@ -1,9 +1,11 @@
+// Checked
+// Background dark/white
 "use client";
 
 import { useEffect } from "react";
 import { useAuth } from "./AuthContext";
 
-// Funcție pentru a determina dacă o culoare este întunecată
+// verificare culoare intunecată
 const isColorDark = (hexColor: string): boolean => {
   const hex = hexColor.replace("#", "");
   const r = parseInt(hex.substr(0, 2), 16);
@@ -17,15 +19,15 @@ export function useBackgroundColor() {
   const { user, updateUser } = useAuth();
 
   useEffect(() => {
-    // Aplică culoarea de fundal când utilizatorul se schimbă
+    // culoare fundal si dark mode
     const backgroundColor = user?.backgroundColor || "#f9fafb";
     const isDark = isColorDark(backgroundColor);
 
-    // Setează culoarea de fundal
+    // setare culoare fundal
     document.documentElement.style.setProperty("--bg-color", backgroundColor);
     document.body.style.backgroundColor = backgroundColor;
 
-    // Aplică clasele Tailwind pentru dark mode
+    // Add/Remove dark mode
     if (isDark) {
       document.documentElement.classList.add("dark");
     } else {
@@ -33,6 +35,7 @@ export function useBackgroundColor() {
     }
   }, [user?.backgroundColor]);
 
+  // update culoare fundal
   const updateBackgroundColor = async (color: string) => {
     if (!user?.id) return false;
 
@@ -51,14 +54,15 @@ export function useBackgroundColor() {
       const data = await response.json();
 
       if (data.success) {
-        // Actualizează utilizatorul în context
+        // Actualizare utilizatorul în context
         updateUser({ backgroundColor: color });
 
-        // Aplică imediat noua culoare și dark mode
+        // Noua culoare si dark mode
         const isDark = isColorDark(color);
         document.documentElement.style.setProperty("--bg-color", color);
         document.body.style.backgroundColor = color;
 
+        // Add/Remove dark mode
         if (isDark) {
           document.documentElement.classList.add("dark");
         } else {

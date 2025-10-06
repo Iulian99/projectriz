@@ -28,7 +28,7 @@ interface AuthContextType {
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
 }
-
+// creare container global
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Pagini care nu necesită autentificare
@@ -54,19 +54,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const isPublicPage = publicPages.includes(pathname);
 
       if (!user && !isPublicPage) {
-        // Nu e logat și încearcă să acceseze o pagină protejată
+        // Nu e logat + accesare pagina protejata
         router.push("/login");
       } else if (user && (pathname === "/login" || pathname === "/register")) {
-        // E logat și încearcă să acceseze login/register
+        // dupa login
         router.push("/dashboard");
       }
     }
+    // verificare variabile in useEffect sa fie în dependency array
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, isLoading, pathname]);
 
   const checkAuthStatus = async () => {
     try {
-      // Verifică localStorage pentru utilizatorul logat
+      // verificare localStorage pentru utilizator
       const cachedUser = localStorage.getItem("user");
       if (cachedUser) {
         setUser(JSON.parse(cachedUser));
@@ -86,7 +87,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setUser(userData);
     localStorage.setItem("user", JSON.stringify(userData));
 
-    // Redirect către dashboard după login reușit
+    // redirectionare catre dashboard dupa login utilizator
     if (pathname === "/login" || pathname === "/register") {
       router.push("/dashboard");
     }
@@ -94,7 +95,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const logout = async () => {
     try {
-      // Apelează API-ul de logout
+      // API de logout
       await fetch("/api/user-management/logout", {
         method: "POST",
         credentials: "include",
@@ -102,7 +103,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } catch (error) {
       console.error("Eroare la logout:", error);
     } finally {
-      // Curăță state-ul local indiferent de rezultat
+      // Curatare state-ul local - localStorage
       setUser(null);
       localStorage.removeItem("user");
       router.push("/login");
@@ -129,7 +130,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-// Hook personalizat pentru folosirea context-ului
+// Hook pentru context
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
@@ -138,7 +139,7 @@ export function useAuth() {
   return context;
 }
 
-// Hook pentru verificarea rolurilor
+// Hook verificare roluri
 export function useRole() {
   const { user } = useAuth();
 

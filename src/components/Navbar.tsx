@@ -24,12 +24,12 @@ const Navbar: React.FC = () => {
   };
 
   // Folosim hook-ul useRole pentru a verifica rolul utilizatorului
-  const { isManager, isAdmin } = useRole();
+  const { isManager } = useRole();
 
   // Elemente de navigare de bază pentru toți utilizatorii
   const baseNavigationItems = [
     { href: "/dashboard", label: "Dashboard" },
-    { href: "/reports", label: "Calendar" },
+    { href: "/reports", label: "Raport Activități" },
     { href: "/support", label: "Suport" },
   ];
 
@@ -38,16 +38,10 @@ const Navbar: React.FC = () => {
     { href: "/team-reports", label: "Rapoarte Echipă" },
   ];
 
-  // Doar admins pot vedea acest element
-  const adminNavigationItems = [
-    { href: "/admin/users", label: "Administrare Utilizatori" },
-  ];
-
   // Combinăm elementele de navigare în funcție de rol
   const navigationItems = [
     ...baseNavigationItems,
     ...(isManager ? managerNavigationItems : []),
-    ...(isAdmin ? adminNavigationItems : []),
   ];
 
   // Funcție pentru a determina dacă link-ul este activ

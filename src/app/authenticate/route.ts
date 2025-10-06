@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { supabase } from "@/lib/supabase";
 
+// LoginRequest de la server
 interface LoginRequest {
   identifier: string;
   password: string;
   rememberMe: boolean;
 }
-
+// LoginResponse de la server
 interface LoginResponse {
   success: boolean;
   message?: string;
@@ -41,7 +42,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Caută utilizatorul în Supabase
+    // cautare utilizatori in baza de date(supabase)
     const { data: user, error: fetchError } = await supabase
       .from("users")
       .select("*")
@@ -49,7 +50,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (fetchError || !user) {
-      console.log("❌ Utilizator nu a fost găsit:", identifier);
+      console.log("Utilizator nu a fost găsit:", identifier);
       return NextResponse.json(
         {
           success: false,
@@ -58,11 +59,11 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
-
+    // verificare parola hash-uita in baza de date
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      console.log("❌ Parolă incorectă pentru:", identifier);
+      console.log("Parolă incorectă pentru:", identifier);
       return NextResponse.json(
         {
           success: false,
@@ -72,7 +73,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log("✅ Login reușit pentru:", user.name);
+    console.log("Login reușit pentru:", user.name);
 
     const response: LoginResponse = {
       success: true,
@@ -92,8 +93,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error("💥 Eroare la login:", error);
-
+    console.error("Eroare la login:", error);
     return NextResponse.json(
       {
         success: false,
@@ -104,6 +104,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// date de la server
 export async function GET() {
   return NextResponse.json({
     message: "API Login funcționează",

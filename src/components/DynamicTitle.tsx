@@ -1,3 +1,4 @@
+// checked
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
@@ -10,7 +11,7 @@ const LoginDynamicTitle = () => {
   const words = useMemo(
     () => [
       { text: "Raport Individual Zilnic", color: "text-blue-600" },
-      { text: "Analiza ta Personală", color: "text-purple-600" },
+      { text: "Analiza Rapoartelor", color: "text-purple-600" },
       { text: "Progres și Performanță", color: "text-green-600" },
       { text: "Date în Timp Real", color: "text-orange-600" },
     ],
@@ -22,6 +23,7 @@ const LoginDynamicTitle = () => {
 
     if (isTyping) {
       if (displayText.length < currentWord.length) {
+        // timer display speed
         const timer = setTimeout(() => {
           setDisplayText(currentWord.slice(0, displayText.length + 1));
         }, 100);
@@ -29,7 +31,7 @@ const LoginDynamicTitle = () => {
       } else {
         const timer = setTimeout(() => {
           setIsTyping(false);
-        }, 2000);
+        }, 1000);
         return () => clearTimeout(timer);
       }
     } else {

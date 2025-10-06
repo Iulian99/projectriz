@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 // GET - Obține toți subordonații unui manager
 export async function GET(request: NextRequest) {
@@ -14,25 +19,20 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Obținem toți utilizatorii care au acest manager ID folosind relația corectă
-    const subordinates = await prisma.user.findMany({
-      where: {
-        managerId: parseInt(managerId),
-      },
-      select: {
-        id: true,
-        name: true,
-        identifier: true,
-        email: true,
-        department: true,
-        position: true,
-        role: true,
-      },
-    });
+    // Obținem toți utilizatorii care au acest manager ID folosind Supabase
+    const { data: subordinates, error } = await supabase
+      .from("User")
+      .select("id, name, identifier, email, department, position, role")
+      .eq("managerId", parseInt(managerId));
+
+    if (error) {
+      console.error("Supabase error:", error);
+      return NextResponse.json({ error: "Database error" }, { status: 500 });
+    }
 
     return NextResponse.json({
       success: true,
-      users: subordinates,
+      users: subordinates || [],
     });
   } catch (error) {
     console.error("Error fetching subordinates:", error);
