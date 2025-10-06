@@ -150,7 +150,7 @@ export default function LoginPage() {
                 htmlFor="identifier"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                UID sau Email
+                Cod utilizator
               </label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -163,7 +163,7 @@ export default function LoginPage() {
                     handleInputChange("identifier", e.target.value)
                   }
                   className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  placeholder="Introdu UID-ul sau email-ul"
+                  placeholder="Introdu codul de utilizator"
                   disabled={isLoading}
                 />
               </div>
@@ -249,25 +249,25 @@ export default function LoginPage() {
 
           <div className="mt-8 pt-6 border-t border-gray-100">
             <h4 className="text-sm font-semibold text-gray-700 mb-3">
-              Conturi pentru test:
+              Conturi DTITS pentru test:
             </h4>
             <div className="space-y-2 text-xs text-gray-600">
               <div className="flex justify-between">
                 <span>Director:</span>
                 <code className="bg-gray-100 px-2 py-1 rounded">
-                  admin_director / admin123
+                  48492560 / 48492560 sau 123456
                 </code>
               </div>
               <div className="flex justify-between">
-                <span>User:</span>
+                <span>Șef serviciu:</span>
                 <code className="bg-gray-100 px-2 py-1 rounded">
-                  neaga_iulian / admin123
+                  40060988 / 40060988 sau 123456
                 </code>
               </div>
               <div className="flex justify-between">
-                <span>User:</span>
+                <span>Expert:</span>
                 <code className="bg-gray-100 px-2 py-1 rounded">
-                  popescu_dan / admin123
+                  72304000 / 72304000 sau 123456
                 </code>
               </div>
             </div>
