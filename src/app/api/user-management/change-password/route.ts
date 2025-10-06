@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { prisma } from "@/lib/prisma";
+import { supabase } from "@/lib/supabase";
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,11 +25,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Găsește utilizatorul
-    const user = await prisma.user.findUnique({
-      where: { id: parseInt(userId) },
-    });
+    const { data: user, error: fetchError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", parseInt(userId))
+      .single();
 
-    if (!user) {
+    if (fetchError || !user) {
       return NextResponse.json(
         { success: false, error: "Utilizatorul nu a fost găsit" },
         { status: 404 }
@@ -53,10 +55,17 @@ export async function POST(request: NextRequest) {
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
 
     // Actualizează parola în baza de date
-    await prisma.user.update({
-      where: { id: parseInt(userId) },
-      data: { password: hashedNewPassword },
-    });
+    const { error: updateError } = await supabase
+      .from("users")
+      .update({ password: hashedNewPassword })
+      .eq("id", parseInt(userId));
+
+    if (updateError) {
+      return NextResponse.json(
+        { success: false, error: "Eroare la actualizarea parolei" },
+        { status: 500 }
+      );
+    }
 
     console.log(
       `✅ Parola a fost schimbată cu succes pentru utilizatorul: ${user.name}`

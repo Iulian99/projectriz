@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { supabase } from "@/lib/supabase";
 
 // GET - Obține setările utilizatorului
 export async function GET(request: NextRequest) {
@@ -14,11 +14,13 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: parseInt(userId) },
-    });
+    const { data: user, error: fetchError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", parseInt(userId))
+      .single();
 
-    if (!user) {
+    if (fetchError || !user) {
       return NextResponse.json(
         { success: false, error: "Utilizatorul nu a fost găsit" },
         { status: 404 }
@@ -75,11 +77,13 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Verifică dacă utilizatorul există
-    const existingUser = await prisma.user.findUnique({
-      where: { id: parseInt(userId) },
-    });
+    const { data: existingUser, error: fetchError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", parseInt(userId))
+      .single();
 
-    if (!existingUser) {
+    if (fetchError || !existingUser) {
       return NextResponse.json(
         { success: false, error: "Utilizatorul nu a fost găsit" },
         { status: 404 }
@@ -87,10 +91,19 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Actualizează culoarea de fundal
-    const updatedUser = await prisma.user.update({
-      where: { id: parseInt(userId) },
-      data: { backgroundColor } as { backgroundColor: string },
-    });
+    const { data: updatedUser, error: updateError } = await supabase
+      .from("users")
+      .update({ backgroundColor })
+      .eq("id", parseInt(userId))
+      .select()
+      .single();
+
+    if (updateError || !updatedUser) {
+      return NextResponse.json(
+        { success: false, error: "Eroare la actualizarea setărilor" },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
