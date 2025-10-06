@@ -1,79 +1,10 @@
 # Configurare Supabase Dashboard - Nomenclatoare Servicii Publice
 
-## � INSTRUCȚIUNI RAPIDE - START AICI!
-
-**Pentru a crea rapid toate tabelele în Supabase:**
-1. Deschide fișierul `supabase_complete_setup.sql` din rădăcina proiectului
-2. Copiază tot conținutul fișierului  
-3. Mergi în [Supabase Dashboard](https://supabase.com/dashboard) > SQL Editor
-4. Lipește script-ul și apasă "Run"
-5. ✅ Toate tabelele vor fi create automat cu date inițiale!
-
-## �📋 Prezentare Generală
+## 📋 Prezentare Generală
 
 Această schemă de bază de date a fost proiectată pentru sistemele de management din serviciile publice și include toate nomenclatoarele necesare pentru gestionarea activităților, utilizatorilor și structurii organizaționale.
 
-## 🚀 PRIMUL PAS: Crearea Tabelelor Existente
-
-### **USERS** - Tabel utilizatori existent
-```sql
-CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,
-    identifier VARCHAR UNIQUE NOT NULL,
-    email VARCHAR UNIQUE NOT NULL,
-    password VARCHAR NOT NULL,
-    name VARCHAR NOT NULL,
-    role VARCHAR DEFAULT 'user',
-    avatar VARCHAR,
-    department VARCHAR,
-    badge VARCHAR,
-    position VARCHAR,
-    "employeeCode" VARCHAR,
-    unit VARCHAR,
-    phone VARCHAR,
-    address VARCHAR,
-    "birthDate" TIMESTAMPTZ,
-    "hireDate" TIMESTAMPTZ,
-    status VARCHAR DEFAULT 'active',
-    "managerId" INTEGER,
-    "createdAt" TIMESTAMPTZ DEFAULT NOW(),
-    "updatedAt" TIMESTAMPTZ DEFAULT NOW(),
-    "backgroundColor" VARCHAR DEFAULT '#f9fafb',
-    "resetToken" VARCHAR,
-    "resetTokenExpiry" TIMESTAMPTZ,
-    FOREIGN KEY ("managerId") REFERENCES users(id)
-);
-```
-
-### **ACTIVITIES** - Tabel activități existent
-```sql
-CREATE TABLE IF NOT EXISTS activities (
-    id SERIAL PRIMARY KEY,
-    date TIMESTAMPTZ DEFAULT NOW(),
-    activity VARCHAR NOT NULL,
-    work VARCHAR NOT NULL,
-    status VARCHAR DEFAULT 'Completat',
-    "userId" INTEGER NOT NULL,
-    "baseAct" VARCHAR,
-    attributes VARCHAR,
-    complexity VARCHAR,
-    "timeSpent" INTEGER,
-    observations VARCHAR,
-    "createdAt" TIMESTAMPTZ DEFAULT NOW(),
-    "updatedAt" TIMESTAMPTZ DEFAULT NOW(),
-    FOREIGN KEY ("userId") REFERENCES users(id) ON DELETE CASCADE
-);
-```
-
-### **INDEXURI pentru performanță**
-```sql
-CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
-CREATE INDEX IF NOT EXISTS idx_users_identifier ON users(identifier);
-CREATE INDEX IF NOT EXISTS idx_activities_userId ON activities("userId");
-CREATE INDEX IF NOT EXISTS idx_activities_date ON activities(date);
-```
-
-## 🏗️ Structura Tabelelor Nomenclatoare
+## 🏗️ Structura Tabelelor
 
 ### 1. **NOM_DIRECTIE** - Nomenclator Direcții
 
@@ -232,35 +163,20 @@ CREATE TABLE nom_rof (
 ## 🔧 Pași pentru Configurarea în Supabase Dashboard
 
 ### 1. **Accesarea SQL Editor**
+
 - Logați-vă în [Supabase Dashboard](https://supabase.com/dashboard)
 - Selectați proiectul vostru
 - Mergeți la secțiunea **SQL Editor**
 
-### 2. **Executarea Script-ului Complet** ⚡ METODA RECOMANDATĂ
-- Deschideți fișierul `supabase_complete_setup.sql` din rădăcina proiectului
-- Copiați întreg conținutul fișierului
-- Lipește în SQL Editor și executați
-- **AVANTAJE**: Toate tabelele, indexurile și datele inițiale vor fi create automat
+### 2. **Executarea Script-urilor SQL**
 
-### 3. **ALTERNATIV: Executarea Script-urilor SQL Individual**
 - Copiați și executați fiecare script SQL de mai sus în ordinea indicată
 - **IMPORTANT**: Respectați ordinea pentru a evita erorile de foreign key
 
-### 4. **Verificarea Tabelelor**
+### 3. **Verificarea Tabelelor**
+
 - Mergeți la secțiunea **Table Editor**
-- Verificați că toate tabelele au fost create cu succes:
-  - `users` ✅
-  - `activities` ✅
-  - `nom_directie` ✅
-  - `nom_servicii` ✅
-  - `nom_functii` ✅
-  - `nom_utilizatori` ✅
-  - `nom_atributii` ✅
-  - `nom_act_baza` ✅
-  - `nom_buget_timp` ✅
-  - `nom_calendar` ✅
-  - `nom_lucrari` ✅
-  - `nom_rof` ✅
+- Verificați că toate tabelele au fost create cu succes
 - Verificați relațiile foreign key
 
 ### 4. **Configurarea RLS (Row Level Security)**
