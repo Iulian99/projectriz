@@ -7,6 +7,178 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Nomenclator direcții
+model NomDirectie {
+  id          Int           @id @default(autoincrement())
+  codDir      String        @unique @map("cod_dir")
+  denumireDir String        @map("denumire_dir")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  
+  // Relații
+  servicii    NomServicii[]
+  nomRof      NomRof[]
+
+  @@map("nom_directie")
+}
+
+// Nomenclator servicii
+model NomServicii {
+  id           Int              @id @default(autoincrement())
+  codServ      String           @unique @map("cod_serv")
+  denumireServ String           @map("denumire_serv")
+  codDir       String           @map("cod_dir")
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @updatedAt @map("updated_at")
+  
+  // Relații
+  directie     NomDirectie      @relation(fields: [codDir], references: [codDir], onDelete: Cascade)
+  utilizatori  NomUtilizatori[]
+  atributii    NomAtributii[]
+  lucrari      NomLucrari[]
+  nomRof       NomRof[]
+  bugetTimp    NomBugetTimp[]
+
+  @@map("nom_servicii")
+}
+
+// Nomenclator funcții
+model NomFunctii {
+  id             Int              @id @default(autoincrement())
+  codFunctie     String           @unique @map("cod_functie")
+  tipFunctie     String           @unique @map("tip_functie")
+  denumireFunctie String          @map("denumire_functie")
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  
+  // Relații
+  utilizatori    NomUtilizatori[]
+  atributii      NomAtributii[]
+
+  @@map("nom_functii")
+}
+
+// Nomenclator utilizatori/angajați
+model NomUtilizatori {
+  id                 Int            @id @default(autoincrement())
+  codUtilizator      String         @unique @map("cod_utilizator")
+  denumireUtilizator String         @map("denumire_utilizator")
+  codFunctie         String         @map("cod_functie")
+  numarMatricol      String?        @map("numar_matricol")
+  codServ            String         @map("cod_serv")
+  email              String?        @unique
+  password           String?
+  status             String         @default("active")
+  managerId          String?        @map("manager_id") // Schimbat la String pentru a referenția codUtilizator
+  backgroundColor    String?        @default("#f9fafb") @map("background_color")
+  resetToken         String?        @map("reset_token")
+  resetTokenExpiry   DateTime?      @map("reset_token_expiry")
+  createdAt          DateTime       @default(now()) @map("created_at")
+  updatedAt          DateTime       @updatedAt @map("updated_at")
+  
+  // Relații
+  functie            NomFunctii     @relation(fields: [codFunctie], references: [codFunctie], onDelete: Cascade)
+  serviciu           NomServicii    @relation(fields: [codServ], references: [codServ], onDelete: Cascade)
+  bugetTimp          NomBugetTimp[]
+  manager            NomUtilizatori? @relation("UtilizatorManager", fields: [managerId], references: [codUtilizator])
+  subordinates       NomUtilizatori[] @relation("UtilizatorManager")
+
+  @@map("nom_utilizatori")
+}
+
+// Nomenclator atribuțiile funcțiilor
+model NomAtributii {
+  id                Int         @id @default(autoincrement())
+  codServ           String      @map("cod_serv")
+  tipFunctie        String      @map("tip_functie")
+  codAtributie      String      @map("cod_atributie")
+  denumireAtributie String      @map("denumire_atributie")
+  createdAt         DateTime    @default(now()) @map("created_at")
+  updatedAt         DateTime    @updatedAt @map("updated_at")
+  
+  // Relații
+  serviciu          NomServicii @relation(fields: [codServ], references: [codServ], onDelete: Cascade)
+  functie           NomFunctii  @relation(fields: [tipFunctie], references: [tipFunctie], onDelete: Cascade)
+
+  @@unique([codServ, tipFunctie, codAtributie])
+  @@map("nom_atributii")
+}
+
+// Nomenclator acte normative/documente de bază
+model NomActBaza {
+  id          Int      @id @default(autoincrement())
+  codAct      String   @unique @map("cod_act")
+  denumireAct String   @map("denumire_act")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("nom_act_baza")
+}
+
+// Evidența bugetului de timp pe utilizatori
+model NomBugetTimp {
+  id            Int             @id @default(autoincrement())
+  dataZi        DateTime        @map("data_zi")
+  codUtilizator String          @map("cod_utilizator")
+  minute        Int
+  codServ       String          @map("cod_serv")
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+  
+  // Relații
+  utilizator    NomUtilizatori  @relation(fields: [codUtilizator], references: [codUtilizator], onDelete: Cascade)
+  serviciu      NomServicii     @relation(fields: [codServ], references: [codServ], onDelete: Cascade)
+
+  @@unique([dataZi, codUtilizator, codServ])
+  @@map("nom_buget_timp")
+}
+
+// Calendar cu tipuri de zile
+model NomCalendar {
+  id        Int      @id @default(autoincrement())
+  dataZi    DateTime @unique @map("data_zi")
+  tipZi     String   @map("tip_zi") // "lucratoare" sau "nelucratoare"
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("nom_calendar")
+}
+
+// Nomenclator lucrări/aplicații
+model NomLucrari {
+  id              Int         @id @default(autoincrement())
+  codServ         String      @map("cod_serv")
+  codLucrare      String      @map("cod_lucrare")
+  denumireLucrare String      @map("denumire_lucrare")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+  
+  // Relații
+  serviciu        NomServicii @relation(fields: [codServ], references: [codServ], onDelete: Cascade)
+
+  @@unique([codServ, codLucrare])
+  @@map("nom_lucrari")
+}
+
+// Regulamentul de organizare și funcționare
+model NomRof {
+  id          Int         @id @default(autoincrement())
+  codDir      String      @map("cod_dir")
+  codServ     String      @map("cod_serv")
+  codRof      String      @map("cod_rof")
+  denumireRof String      @map("denumire_rof")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  
+  // Relații
+  directie    NomDirectie @relation(fields: [codDir], references: [codDir], onDelete: Cascade)
+  serviciu    NomServicii @relation(fields: [codServ], references: [codServ], onDelete: Cascade)
+
+  @@unique([codDir, codServ, codRof])
+  @@map("nom_rof")
+}
+
+// Păstrare model User existent pentru compatibilitate
 model User {
   id               Int        @id @default(autoincrement())
   identifier       String     @unique
@@ -38,6 +210,7 @@ model User {
   @@map("users")
 }
 
+// Model Activity păstrat pentru compatibilitate
 model Activity {
   id           Int      @id @default(autoincrement())
   date         DateTime @default(now())
