@@ -53,9 +53,10 @@ export default function DailyReportClient({
 
       try {
         setLoading(true);
-        const url = `/api/data?userId=${
-          user.id
-        }&date=${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+        const url = `/api/data?userId=${user.id}&date=${year}-${month.padStart(
+          2,
+          "0"
+        )}-${day.padStart(2, "0")}`;
 
         console.log(`🔍 Fetching activities from: ${url}`);
         console.log(

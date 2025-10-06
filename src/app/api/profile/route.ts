@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { supabase } from "@/lib/supabase";
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,13 +13,13 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const user = await prisma.user.findUnique({
-      where: {
-        id: parseInt(userId),
-      },
-    });
+    const { data: user, error: fetchError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", parseInt(userId))
+      .single();
 
-    if (!user) {
+    if (fetchError || !user) {
       return NextResponse.json(
         { success: false, error: "Utilizatorul nu a fost găsit" },
         { status: 404 }
@@ -63,12 +61,19 @@ export async function PUT(request: NextRequest) {
     if (phone) updateData.phone = phone;
     if (address) updateData.address = address;
 
-    const updatedUser = await prisma.user.update({
-      where: {
-        id: parseInt(userId),
-      },
-      data: updateData,
-    });
+    const { data: updatedUser, error: updateError } = await supabase
+      .from("users")
+      .update(updateData)
+      .eq("id", parseInt(userId))
+      .select()
+      .single();
+
+    if (updateError || !updatedUser) {
+      return NextResponse.json(
+        { success: false, error: "Eroare la actualizarea profilului" },
+        { status: 500 }
+      );
+    }
 
     // Remove sensitive data
     const userWithoutPassword = { ...updatedUser };

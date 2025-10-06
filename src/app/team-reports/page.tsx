@@ -200,9 +200,7 @@ export default function TeamReportsPage() {
           `/api/data?userId=${selectedMember}&startDate=${dateRange.start}&endDate=${dateRange.end}`
         );
 
-        const allResponse = await fetch(
-          `/api/data?userId=${selectedMember}`
-        );
+        const allResponse = await fetch(`/api/data?userId=${selectedMember}`);
 
         if (!periodResponse.ok || !allResponse.ok) {
           throw new Error("Failed to fetch activities");

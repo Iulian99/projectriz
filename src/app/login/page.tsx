@@ -66,7 +66,7 @@ export default function LoginPage() {
         headers: {
           "Content-Type": "application/json",
           "X-Vercel-Skip-Toolbar": "1",
-          "X-Vercel-Protection-Bypass": "1"
+          "X-Vercel-Protection-Bypass": "1",
         },
         credentials: "include",
         body: JSON.stringify(formData),
