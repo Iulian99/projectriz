@@ -1,17 +1,3 @@
--- ====================================================================
--- SCRIPT COMPLET PENTRU SUPABASE SQL EDITOR
--- ====================================================================
--- INSTRUCȚIUNI:
--- 1. Copiază acest script complet
--- 2. Deschide Supabase Dashboard > SQL Editor
--- 3. Lipește și execută script-ul
--- 4. Verifică în Table Editor că toate tabelele au fost create
--- ====================================================================
-
--- ====================================================================
--- PRIMUL PAS: TABELELE EXISTENTE (NECESARE PENTRU APLICAȚIE)
--- ====================================================================
-
 -- Tabel Users (utilizatori aplicație)
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
