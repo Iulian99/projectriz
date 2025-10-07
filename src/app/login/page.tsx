@@ -109,11 +109,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-red-100 via-white to-red-200 flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-32 w-80 h-80 bg-blue-200 rounded-full opacity-20 blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-32 w-80 h-80 bg-purple-200 rounded-full opacity-20 blur-3xl"></div>
+        <div className="absolute -top-40 -right-32 w-80 h-80 bg-red-300 rounded-full opacity-20 blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-32 w-80 h-80 bg-red-200 rounded-full opacity-20 blur-3xl"></div>
       </div>
 
       {/* Water Bubbles Component */}
