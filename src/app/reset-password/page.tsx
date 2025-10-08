@@ -17,6 +17,20 @@ interface ResetPasswordFormData {
   confirmPassword: string;
 }
 
+export default function ResetPasswordPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+          <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      }
+    >
+      <ResetPasswordContent />
+    </Suspense>
+  );
+}
+
 interface ResetPasswordResponse {
   success: boolean;
   message?: string;
@@ -39,6 +53,45 @@ function ResetPasswordContent() {
     password: "",
     confirmPassword: "",
   });
+
+  // Pentru resetare directă user+parolă
+  const [directUser, setDirectUser] = useState("");
+  const [directPassword, setDirectPassword] = useState("");
+  const [directResetMsg, setDirectResetMsg] = useState("");
+  const [directLoading, setDirectLoading] = useState(false);
+
+  const handleDirectReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setDirectResetMsg("");
+    setDirectLoading(true);
+    if (!directUser || !directPassword) {
+      setDirectResetMsg("Completează user și parolă nouă");
+      setDirectLoading(false);
+      return;
+    }
+    if (directPassword.length < 6) {
+      setDirectResetMsg("Parola trebuie să aibă cel puțin 6 caractere");
+      setDirectLoading(false);
+      return;
+    }
+    try {
+      const response = await fetch("/api/user-management/direct-reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ identifier: directUser, password: directPassword }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        setDirectResetMsg("Parola a fost schimbată cu succes!");
+      } else {
+        setDirectResetMsg(data.error || "Eroare la resetare");
+      }
+    } catch (err) {
+      setDirectResetMsg("Eroare de conexiune");
+    } finally {
+      setDirectLoading(false);
+    }
+  };
 
   // Validează token-ul la încărcarea paginii
   useEffect(() => {
@@ -181,10 +234,7 @@ function ResetPasswordContent() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Password Input */}
                 <div>
-                  <label
-                    htmlFor="password"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                     Parolă Nouă
                   </label>
                   <div className="relative">
@@ -194,9 +244,7 @@ function ResetPasswordContent() {
                       type={showPassword ? "text" : "password"}
                       required
                       value={formData.password}
-                      onChange={(e) =>
-                        handleInputChange("password", e.target.value)
-                      }
+                      onChange={(e) => handleInputChange("password", e.target.value)}
                       className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                       placeholder="Cel puțin 6 caractere"
                       disabled={isLoading}
@@ -208,21 +256,14 @@ function ResetPasswordContent() {
                       className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 disabled:opacity-50"
                       disabled={isLoading}
                     >
-                      {showPassword ? (
-                        <EyeOff className="w-5 h-5" />
-                      ) : (
-                        <Eye className="w-5 h-5" />
-                      )}
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
                   </div>
                 </div>
 
                 {/* Confirm Password Input */}
                 <div>
-                  <label
-                    htmlFor="confirmPassword"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
+                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
                     Confirmă Parola
                   </label>
                   <div className="relative">
@@ -232,66 +273,35 @@ function ResetPasswordContent() {
                       type={showConfirmPassword ? "text" : "password"}
                       required
                       value={formData.confirmPassword}
-                      onChange={(e) =>
-                        handleInputChange("confirmPassword", e.target.value)
-                      }
+                      onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
                       className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                       placeholder="Repetă parola"
                       disabled={isLoading}
                     />
                     <button
                       type="button"
-                      onClick={() =>
-                        setShowConfirmPassword(!showConfirmPassword)
-                      }
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 disabled:opacity-50"
                       disabled={isLoading}
                     >
-                      {showConfirmPassword ? (
-                        <EyeOff className="w-5 h-5" />
-                      ) : (
-                        <Eye className="w-5 h-5" />
-                      )}
+                      {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
                   </div>
                 </div>
 
                 {/* Password Requirements */}
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h4 className="text-sm font-semibold text-blue-800 mb-2">
-                    Cerințe parolă:
-                  </h4>
+                  <h4 className="text-sm font-semibold text-blue-800 mb-2">Cerințe parolă:</h4>
                   <ul className="text-xs text-blue-700 space-y-1">
-                    <li
-                      className={
-                        formData.password.length >= 6 ? "text-green-700" : ""
-                      }
-                    >
-                      • Cel puțin 6 caractere
-                    </li>
-                    <li
-                      className={
-                        formData.password === formData.confirmPassword &&
-                        formData.password
-                          ? "text-green-700"
-                          : ""
-                      }
-                    >
-                      • Parolele se potrivesc
-                    </li>
+                    <li className={formData.password.length >= 6 ? "text-green-700" : ""}>• Cel puțin 6 caractere</li>
+                    <li className={formData.password === formData.confirmPassword && formData.password ? "text-green-700" : ""}>• Parolele se potrivesc</li>
                   </ul>
                 </div>
 
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  disabled={
-                    isLoading ||
-                    !formData.password ||
-                    !formData.confirmPassword ||
-                    formData.password.length < 6 ||
-                    formData.password !== formData.confirmPassword
-                  }
+                  disabled={isLoading || !formData.password || !formData.confirmPassword || formData.password.length < 6 || formData.password !== formData.confirmPassword}
                   className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center group"
                 >
                   {isLoading ? (
@@ -304,23 +314,49 @@ function ResetPasswordContent() {
                   )}
                 </button>
               </form>
+
+              {/* Formular direct user+parolă */}
+              <div className="mt-8 border-t pt-6">
+                <h3 className="text-md font-semibold mb-2 text-gray-700">Resetare rapidă user + parolă</h3>
+                <form onSubmit={handleDirectReset} className="space-y-4">
+                  <input
+                    type="text"
+                    placeholder="User (identifier)"
+                    value={directUser}
+                    onChange={e => setDirectUser(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    disabled={directLoading}
+                  />
+                  <input
+                    type="password"
+                    placeholder="Parolă nouă"
+                    value={directPassword}
+                    onChange={e => setDirectPassword(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    disabled={directLoading}
+                  />
+                  <button
+                    type="submit"
+                    disabled={directLoading || !directUser || !directPassword}
+                    className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-md"
+                  >
+                    {directLoading ? "Se resetează..." : "Resetează direct"}
+                  </button>
+                  {directResetMsg && (
+                    <div className="mt-2 text-sm text-center text-red-600">{directResetMsg}</div>
+                  )}
+                </form>
+              </div>
             </>
           ) : (
-            /* Success State */
             <div className="text-center space-y-6">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
                 <CheckCircle className="w-8 h-8 text-green-600" />
               </div>
-
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Parola resetată cu succes!
-                </h3>
-                <p className="text-gray-600 text-sm">
-                  Poți să te conectezi acum cu noua ta parolă.
-                </p>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Parola resetată cu succes!</h3>
+                <p className="text-gray-600 text-sm">Poți să te conectezi acum cu noua ta parolă.</p>
               </div>
-
               <Link
                 href="/login"
                 className="inline-flex items-center justify-center w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors group"
@@ -342,19 +378,5 @@ function ResetPasswordContent() {
         )}
       </div>
     </div>
-  );
-}
-
-export default function ResetPasswordPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      }
-    >
-      <ResetPasswordContent />
-    </Suspense>
   );
 }
