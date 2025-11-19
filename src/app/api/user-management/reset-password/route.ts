@@ -9,6 +9,19 @@ export async function POST(request: NextRequest) {
     const { token, password, codUtilizator, newPassword } = body;
 
     if (codUtilizator && newPassword) {
+      let normalizedCode: bigint;
+      try {
+        normalizedCode =
+          typeof codUtilizator === "bigint"
+            ? codUtilizator
+            : BigInt(codUtilizator);
+      } catch (error) {
+        console.error("Cod utilizator invalid pentru resetare:", error);
+        return NextResponse.json(
+          { success: false, error: "Codul utilizatorului este invalid" },
+          { status: 400 }
+        );
+      }
       // Resetare directă pentru admin/dev
       if (newPassword.length < 6) {
         return NextResponse.json(
@@ -20,7 +33,7 @@ export async function POST(request: NextRequest) {
         );
       }
       const user = await prisma.nomUtilizatori.findUnique({
-        where: { codUtilizator },
+        where: { codUtilizator: normalizedCode },
       });
       if (!user) {
         return NextResponse.json(
@@ -30,8 +43,8 @@ export async function POST(request: NextRequest) {
       }
       const hashedPassword = await bcrypt.hash(newPassword, 12);
       await prisma.nomUtilizatori.update({
-        where: { codUtilizator },
-        data: { password: hashedPassword, updatedAt: new Date() },
+        where: { codUtilizator: normalizedCode },
+        data: { password: hashedPassword },
       });
       return NextResponse.json({
         success: true,

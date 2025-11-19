@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -13,3 +7,188 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id               Int        @id @default(autoincrement())
+  identifier       String     @unique
+  email            String     @unique
+  password         String
+  name             String
+  role             String     @default("user")
+  avatar           String?
+  department       String?
+  badge            String?
+  position         String?
+  employeeCode     String?
+  unit             String?
+  phone            String?
+  address          String?
+  birthDate        DateTime?
+  hireDate         DateTime?
+  status           String     @default("active")
+  managerId        Int?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  backgroundColor  String?    @default("#f9fafb")
+  resetToken       String?
+  resetTokenExpiry DateTime?
+  activities       Activity[]
+  manager          User?      @relation("UserManager", fields: [managerId], references: [id])
+  subordinates     User[]     @relation("UserManager")
+
+  @@map("users")
+}
+
+model Activity {
+  id           Int      @id @default(autoincrement())
+  date         DateTime @default(now())
+  activity     String
+  work         String
+  status       String   @default("Completat")
+  userId       Int
+  baseAct      String?
+  attributes   String?
+  complexity   String?
+  timeSpent    Int?
+  observations String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("activities")
+}
+
+model NomDirectie {
+  codDir      String        @id @map("cod_dir") @db.VarChar(10)
+  denumireDir String        @map("denumire_dir") @db.VarChar(200)
+  servicii    NomServicii[]
+  rofEntries  NomRof[]
+
+  @@map("nom_directie")
+}
+
+model NomServicii {
+  codServ      String            @id @map("cod_serv") @db.VarChar(10)
+  denumireServ String            @map("denumire_serv") @db.VarChar(200)
+  codDir       String            @map("cod_dir") @db.VarChar(10)
+  directie     NomDirectie       @relation(fields: [codDir], references: [codDir])
+  atributii    NomAtributii[]
+  lucrari      NomLucrari[]
+  rofEntries   NomRof[]
+  bugete       NomBugetTimp[]
+  utilizatori  NomUtilizatori[]
+
+  @@map("nom_servicii")
+}
+
+model NomFunctii {
+  codFunctie      String            @id @map("cod_functie") @db.VarChar(10)
+  tipFunctie      String            @map("tip_functie") @db.VarChar(15)
+  denumireFunctie String            @map("denumire_functie") @db.VarChar(50)
+  utilizatori     NomUtilizatori[]
+
+  @@map("nom_functii")
+}
+
+model NomUtilizatori {
+  codUtilizator      BigInt          @id @map("cod_utilizator") @db.BigInt
+  denumireUtilizator String          @map("denumire_utilizator") @db.VarChar(200)
+  codFunctie         String          @map("cod_functie") @db.VarChar(10)
+  numarMatricol      Int?            @map("numar_matricol")
+  codServ            String          @map("cod_serv") @db.VarChar(10)
+  email              String?         @map("email") @db.VarChar(255)
+  status             String?         @map("status") @db.VarChar(50)
+  backgroundColor    String?         @map("background_color") @db.VarChar(20)
+  password           String?         @map("password_hash")
+  defaultPassword    String?         @map("default_password_hash")
+  serviciu           NomServicii     @relation(fields: [codServ], references: [codServ])
+  functie            NomFunctii      @relation(fields: [codFunctie], references: [codFunctie])
+  bugete             NomBugetTimp[]
+  rapoarte           Raport[]        @relation("RaportUtilizator")
+
+  @@map("nom_utilizatori")
+}
+
+model NomActBaza {
+  codAct      Int    @id @map("cod_act")
+  denumireAct String @map("denumire_act") @db.VarChar(100)
+
+  @@map("nom_act_baza")
+}
+
+model NomAtributii {
+  codServ           String      @map("cod_serv") @db.VarChar(10)
+  tipFunctie        String      @map("tip_functie") @db.VarChar(15)
+  codAtributie      Int         @map("cod_atributie")
+  denumireAtributie String      @map("denumire_atributie") @db.VarChar(1000)
+  serviciu          NomServicii @relation(fields: [codServ], references: [codServ])
+
+  @@id([codServ, tipFunctie, codAtributie])
+  @@map("nom_atributii")
+}
+
+model NomLucrari {
+  codServ        String      @map("cod_serv") @db.VarChar(10)
+  codLucrare     Int         @map("cod_lucrare")
+  denumireLucrare String     @map("denumire_lucrare") @db.VarChar(1000)
+  serviciu       NomServicii @relation(fields: [codServ], references: [codServ])
+
+  @@id([codServ, codLucrare])
+  @@map("nom_lucrari")
+}
+
+model NomRof {
+  codDir      String       @map("cod_dir") @db.VarChar(10)
+  codServ     String       @map("cod_serv") @db.VarChar(10)
+  codRof      String       @map("cod_rof") @db.VarChar(15)
+  denumireRof String       @map("denumire_rof") @db.VarChar(1000)
+  directie    NomDirectie  @relation(fields: [codDir], references: [codDir])
+  serviciu    NomServicii  @relation(fields: [codServ], references: [codServ])
+
+  @@id([codDir, codServ, codRof])
+  @@map("nom_rof")
+}
+
+model NomCalendar {
+  dataZi DateTime @id @map("datazi") @db.Date
+  tipZi  String   @map("tipzi") @db.VarChar(20)
+
+  @@map("nom_calendar")
+}
+
+model NomBugetTimp {
+  dataZi        DateTime       @map("datazi") @db.Date
+  codUtilizator BigInt         @map("cod_utilizator") @db.BigInt
+  minute        Int            @map("minute")
+  explicatie    String?        @map("explicatie") @db.VarChar(50)
+  codServ       String         @map("cod_serv") @db.VarChar(10)
+  utilizator    NomUtilizatori @relation(fields: [codUtilizator], references: [codUtilizator])
+  serviciu      NomServicii    @relation(fields: [codServ], references: [codServ])
+
+  @@id([dataZi, codUtilizator, codServ])
+  @@map("nom_buget_timp")
+}
+
+model Raport {
+  raportId      BigInt          @id @default(autoincrement()) @map("raport_id")
+  raportUid     BigInt          @map("raport_uid") @db.BigInt
+  raportData    DateTime        @map("raport_data") @db.Date
+  activitate    String          @map("activitate") @db.VarChar(500)
+  atributii     String          @map("atributii") @db.VarChar(500)
+  act           String          @map("act") @db.VarChar(30)
+  lucrare       String          @map("lucrare") @db.VarChar(100)
+  intrare       String?         @map("intrare") @db.VarChar(30)
+  iesire        String?         @map("iesire") @db.VarChar(30)
+  principale    Int             @map("principale")
+  conexe        Int             @map("conexe")
+  neproductive  Int             @map("neproductive")
+  total         Int             @map("total")
+  urgenta       String          @map("urgenta") @db.VarChar(2)
+  utilizareIT   String          @map("utilizareit") @db.VarChar(2)
+  denumireIT    String?         @map("denumireit") @db.VarChar(100)
+  tipActivitate String          @map("tipactivitate") @db.VarChar(30)
+  utilizator    NomUtilizatori  @relation("RaportUtilizator", fields: [raportUid], references: [codUtilizator])
+
+  @@map("raport")
+}
+

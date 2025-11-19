@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// Interfață pentru activități din Prisma
+// Interfata pentru activități din Prisma
 interface ActivityWithTimeSpent {
   id: number;
   date: Date;
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Verificăm dacă luna este specificată, altfel folosim luna curentă
+    // Verificam dacă luna este specificată, altfel folosim luna curentă
     let startDate: Date;
     let endDate: Date;
 
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
       endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
     }
 
-    // Obținem toți utilizatorii care au acest manager ca șef
+    // Obtinem toti utilizatorii care au acest manager ca șef
     const subordinates: SubordinateSummary[] = await prisma.user.findMany({
       where: {
         managerId: parseInt(managerId),
