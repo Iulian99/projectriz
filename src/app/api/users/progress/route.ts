@@ -12,6 +12,14 @@ interface ActivityWithTimeSpent {
   timeSpent?: number | null;
 }
 
+interface SubordinateSummary {
+  id: number;
+  name: string;
+  identifier: string;
+  department: string | null;
+  position: string | null;
+}
+
 // GET - Obține procentul de completare a programului pentru echipă
 export async function GET(request: NextRequest) {
   try {
@@ -41,7 +49,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Obținem toți utilizatorii care au acest manager ca șef
-    const subordinates = await prisma.user.findMany({
+    const subordinates: SubordinateSummary[] = await prisma.user.findMany({
       where: {
         managerId: parseInt(managerId),
       },
@@ -56,7 +64,7 @@ export async function GET(request: NextRequest) {
 
     // Pentru fiecare subordonat, calculăm procentul de completare
     const usersWithProgress = await Promise.all(
-      subordinates.map(async (user) => {
+      subordinates.map(async (user: SubordinateSummary) => {
         // Obținem toate activitățile utilizatorului pentru luna specificată
         const activities = await prisma.activity.findMany({
           where: {
