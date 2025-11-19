@@ -86,9 +86,12 @@ export async function GET(request: NextRequest) {
         });
 
         // Calculăm suma timpului petrecut pentru toate activitățile
-        const totalMinutes = activities.reduce((total, activity) => {
-          return total + (activity.timeSpent || 0);
-        }, 0);
+        const totalMinutes = activities.reduce(
+          (total: number, activity: ActivityWithTimeSpent) => {
+            return total + (activity.timeSpent || 0);
+          },
+          0
+        );
 
         // Calculăm numărul de zile lucrătoare în luna respectivă
         const workdays = getWorkdaysInMonth(startDate, endDate);
@@ -167,9 +170,12 @@ function getDailyReports(
     });
 
     // Calculăm timpul total petrecut în ziua respectivă
-    const dailyMinutes = dailyActivities.reduce((total, activity) => {
-      return total + (activity.timeSpent || 0);
-    }, 0);
+    const dailyMinutes = dailyActivities.reduce(
+      (total: number, activity: ActivityWithTimeSpent) => {
+        return total + (activity.timeSpent || 0);
+      },
+      0
+    );
 
     // Un program complet de lucru are aproximativ 8 ore pe zi (480 minute)
     const dayOfWeek = currentDate.getDay();
