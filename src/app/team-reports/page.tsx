@@ -34,7 +34,7 @@ interface MemberStats {
 }
 
 export default function TeamReportsPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [selectedMember, setSelectedMember] = useState<number | null>(null);
