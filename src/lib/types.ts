@@ -68,24 +68,7 @@ export interface CreateReportRequest {
   productivityRating: number;
 }
 
-export type ActivityType =
-  | "routine"
-  | "project"
-  | "meeting"
-  | "training"
-  | "other";
-export type ActivityStatus = "completed" | "in-progress" | "pending";
-
-export interface ActivityMetrics {
-  quantity: number;
-  complexity: "low" | "medium" | "high";
-  timeSpent: number; // in minutes
-}
-
-export interface ITUsage {
-  systemsUsed: string[];
-  softwareUsed: string[];
-}
+export type ActivityType = "INDIVIDUALA" | "COLECTIVA";
 
 export interface Activity {
   id: string;
@@ -95,13 +78,17 @@ export interface Activity {
   workName: string;
   inputDate: Date;
   outputDate: Date;
-  metrics: ActivityMetrics;
+  entryReference: string;
+  exitReference: string;
+  mainActivities: number;
+  relatedActivities: number;
+  nonProductiveActivities: number;
   urgency: boolean;
-  itUsage: ITUsage;
+  usesIT: boolean;
+  itProgramName?: string;
   activityType: ActivityType;
   observations?: string;
   userId: number;
-  status: ActivityStatus;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -113,9 +100,14 @@ export interface CreateActivityRequest {
   workName: string;
   inputDate: Date;
   outputDate: Date;
-  metrics: ActivityMetrics;
+  entryReference: string;
+  exitReference: string;
+  mainActivities: number;
+  relatedActivities: number;
+  nonProductiveActivities: number;
   urgency: boolean;
-  itUsage: ITUsage;
+  usesIT: boolean;
+  itProgramName: string;
   activityType: ActivityType;
   observations?: string;
 }

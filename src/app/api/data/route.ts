@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 // GET - Obține activitățile utilizatorului
 export async function GET(request: NextRequest) {
   try {
+    if (!isSupabaseConfigured) {
+      return NextResponse.json(
+        {
+          error:
+            "Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local",
+        },
+        { status: 500 }
+      );
+    }
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
     const date = searchParams.get("date");
@@ -17,71 +26,59 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Construiește condiția de căutare
-    const whereCondition: {
-      userId: number;
-      date?: {
-        gte: Date;
-        lt?: Date;
-        lte?: Date;
-      };
-    } = {
-      userId: parseInt(userId),
-    };
-
-    // Adaugă filtrare după interval de date (startDate și endDate)
-    if (startDate && endDate) {
-      const start = new Date(startDate + "T00:00:00.000Z");
-      const end = new Date(endDate + "T23:59:59.999Z");
-
-      whereCondition.date = {
-        gte: start,
-        lte: end,
-      };
-    }
-    // Adaugă filtrare după dată specifică dacă este specificată
-    else if (date) {
-      const selectedDate = new Date(date);
-      const nextDay = new Date(selectedDate);
-      nextDay.setDate(selectedDate.getDate() + 1);
-
-      whereCondition.date = {
-        gte: selectedDate,
-        lt: nextDay,
-      };
-    }
-
-    // Construiește query-ul pentru Supabase
-    let query = supabase
-      .from("activities")
+    // Construiește query-ul pentru Supabase (raportul zilnic)
+    let raportQuery = supabase
+      .from("raport")
       .select(
         `
-        *,
-        users!activities_userId_fkey (
-          name,
-          identifier
-        )
+        raport_id,
+        raport_uid,
+        raport_data,
+        activitate,
+        atributii,
+        act,
+        lucrare,
+        intrare,
+        iesire,
+        principale,
+        conexe,
+        neproductive,
+        total,
+        urgenta,
+        utilizareit,
+        denumireit,
+        tipactivitate
       `
       )
-      .eq("userId", parseInt(userId))
-      .order("date", { ascending: false });
+      .eq("raport_uid", parseInt(userId))
+      .order("raport_data", { ascending: false })
+      .order("raport_id", { ascending: false });
 
     // Adaugă filtrele de dată
     if (date) {
-      const selectedDate = new Date(date);
-      const nextDay = new Date(selectedDate);
-      nextDay.setDate(selectedDate.getDate() + 1);
+      const [yearStr, monthStr, dayStr] = date.split("-");
+      const targetDate = new Date(
+        Date.UTC(
+          parseInt(yearStr || "0", 10),
+          parseInt(monthStr || "1", 10) - 1,
+          parseInt(dayStr || "1", 10)
+        )
+      );
+      const startRange = new Date(targetDate);
+      startRange.setUTCDate(startRange.getUTCDate() - 1);
+      const endRange = new Date(targetDate);
+      endRange.setUTCDate(endRange.getUTCDate() + 1);
 
-      query = query
-        .gte("date", selectedDate.toISOString())
-        .lt("date", nextDay.toISOString());
+      raportQuery = raportQuery
+        .gte("raport_data", startRange.toISOString())
+        .lt("raport_data", endRange.toISOString());
     } else if (startDate && endDate) {
-      query = query
-        .gte("date", new Date(startDate).toISOString())
-        .lte("date", new Date(endDate).toISOString());
+      raportQuery = raportQuery
+        .gte("raport_data", new Date(startDate).toISOString())
+        .lte("raport_data", new Date(endDate).toISOString());
     }
 
-    const { data: activities, error } = await query;
+    const { data: activities, error } = await raportQuery;
 
     if (error) {
       console.error("Supabase error:", error);
@@ -91,55 +88,114 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Definim tipul extins pentru Activity pentru a include câmpurile suplimentare
-    interface ExtendedActivity {
-      id: number;
-      date: Date;
-      activity: string;
-      work: string;
-      status: string;
-      userId: number;
-      createdAt: Date;
-      updatedAt: Date;
-      user: {
-        name: string;
-        identifier: string;
-      };
-      baseAct?: string;
-      attributes?: string;
-      complexity?: string;
-      timeSpent?: number;
-      observations?: string;
+    const raportRows = activities || [];
+
+    // Obține detalii utilizatori într-un singur query separat
+    const userIds = Array.from(
+      new Set(
+        raportRows
+          .map((row) =>
+            row?.raport_uid !== undefined && row?.raport_uid !== null
+              ? String(row.raport_uid)
+              : null
+          )
+          .filter((value): value is string => value !== null)
+      )
+    );
+
+    let usersMap = new Map<
+      string,
+      { cod_utilizator: string; denumire_utilizator: string }
+    >();
+
+    if (userIds.length > 0) {
+      const { data: usersData, error: usersError } = await supabase
+        .from("nom_utilizatori")
+        .select("cod_utilizator, denumire_utilizator")
+        .in("cod_utilizator", userIds);
+
+      if (usersError) {
+        console.error("Supabase users fetch error:", usersError);
+      } else if (usersData) {
+        usersMap = new Map(
+          usersData.map((user) => [String(user.cod_utilizator), user])
+        );
+      }
     }
 
-    // Formatez datele pentru dashboard, incluzând și câmpurile noi
-    const formattedActivities = activities.map((activity) => {
-      // Folosim casting pentru a informa TypeScript despre câmpurile suplimentare
-      const extendedActivity = activity as unknown as ExtendedActivity;
+    const roDateFormatter = new Intl.DateTimeFormat("sv-SE", {
+      timeZone: "Europe/Bucharest",
+    });
+    const roDisplayFormatter = new Intl.DateTimeFormat("ro-RO", {
+      timeZone: "Europe/Bucharest",
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+    const formattedActivities = raportRows.map((activity) => {
+      const raportData = activity as unknown as {
+        raport_id: number;
+        raport_uid: number;
+        raport_data: string;
+        activitate: string;
+        atributii: string | null;
+        act: string | null;
+        lucrare: string | null;
+        total: number | null;
+        tipactivitate: string;
+        denumireit: string | null;
+        urgenta: string | null;
+        utilizareit: string | null;
+        intrare: string | null;
+        iesire: string | null;
+        principale: number | null;
+        conexe: number | null;
+        neproductive: number | null;
+      };
+
+      const raportDate = new Date(raportData.raport_data);
+      const userInfo = usersMap.get(String(raportData.raport_uid));
+      const localDateString = roDateFormatter.format(raportDate);
 
       return {
-        id: extendedActivity.id,
-        date: extendedActivity.date.toISOString().split("T")[0], // Format ISO pentru consistență
-        displayDate: extendedActivity.date.toLocaleDateString("ro-RO"), // Pentru afișare
-        employee: `${extendedActivity.user.name} [${extendedActivity.user.identifier}]`,
-        activity: extendedActivity.activity,
-        work: extendedActivity.work,
-        status: extendedActivity.status,
-        userId: extendedActivity.userId, // Adăugat pentru compatibilitate cu DailyReportClient
-        timeSpent: extendedActivity.timeSpent || 0,
-        createdAt: extendedActivity.createdAt.toISOString(), // Folosim createdAt real din baza de date
-        updatedAt: extendedActivity.updatedAt.toISOString(), // Folosim updatedAt real din baza de date
-        // Includem și câmpurile noi dacă există
-        baseAct: extendedActivity.baseAct || "",
-        attributes: extendedActivity.attributes || "",
-        complexity: extendedActivity.complexity || "",
-        observations: extendedActivity.observations || "",
+        id: raportData.raport_id,
+        date: localDateString,
+        displayDate: roDisplayFormatter.format(raportDate),
+        employee: userInfo
+          ? `${userInfo.denumire_utilizator} [${userInfo.cod_utilizator}]`
+          : `Utilizator ${raportData.raport_uid}`,
+        activity: raportData.activitate,
+        work: raportData.lucrare || "-",
+        status: raportData.tipactivitate || "Completat",
+        userId: raportData.raport_uid,
+        timeSpent: raportData.total ?? 0,
+        createdAt: raportDate.toISOString(),
+        updatedAt: raportDate.toISOString(),
+        baseAct: raportData.act || "",
+        attributes: raportData.atributii || "",
+        complexity: raportData.urgenta || "",
+        observations: raportData.denumireit || "",
+        utilization: raportData.utilizareit || "",
+        urgency: raportData.urgenta || "",
+        itDetails: raportData.denumireit || "",
+        activityType: raportData.tipactivitate || "Completat",
+        entryReference: raportData.intrare || "",
+        exitReference: raportData.iesire || "",
+        mainActivities: raportData.principale ?? 0,
+        relatedActivities: raportData.conexe ?? 0,
+        nonProductiveActivities: raportData.neproductive ?? 0,
       };
     });
 
+    const filteredActivities = date
+      ? formattedActivities.filter((activity) => activity.date === date)
+      : formattedActivities;
+
     return NextResponse.json({
       success: true,
-      data: formattedActivities,
+      data: filteredActivities,
     });
   } catch (error) {
     console.error("Error fetching activities:", error);
@@ -153,6 +209,15 @@ export async function GET(request: NextRequest) {
 // POST - Creează o activitate nouă
 export async function POST(request: NextRequest) {
   try {
+    if (!isSupabaseConfigured) {
+      return NextResponse.json(
+        {
+          error:
+            "Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local",
+        },
+        { status: 500 }
+      );
+    }
     const data = await request.json();
     console.log("POST Request data:", data);
 
@@ -178,24 +243,44 @@ export async function POST(request: NextRequest) {
     console.log("Creating activity with data:", data);
 
     // Construim datele pentru Supabase
+    const itSystems = typeof data.itSystems === "string" ? data.itSystems : "";
+    const itSoftware =
+      typeof data.itSoftware === "string" ? data.itSoftware : "";
+
+    const itDescription = [itSystems, itSoftware]
+      .map((value, index) => {
+        const label = index === 0 ? "Sisteme" : "Software";
+        return value ? `${label}: ${value}` : "";
+      })
+      .filter(Boolean)
+      .join(" | ");
+
+    const usesIt = Boolean(itSystems.trim() || itSoftware.trim());
+
     const activityData = {
-      activity: data.activity,
-      work: data.work,
-      status: data.status || "Completat",
-      userId: parseInt(data.userId),
-      date: data.date
+      raport_uid: parseInt(data.userId),
+      raport_data: data.date
         ? new Date(data.date).toISOString()
         : new Date().toISOString(),
-      // Adăugăm câmpurile opționale
-      baseAct: data.baseAct || null,
-      attributes: data.attributes || null,
-      complexity: data.complexity || null,
-      timeSpent: data.timeSpent || null,
-      observations: data.observations || null,
+      activitate: data.activity,
+      atributii: data.attributes || null,
+      act: data.baseAct || null,
+      lucrare: data.work || null,
+      intrare: data.entryReference || null,
+      iesire: data.exitReference || null,
+      principale: data.mainActivities ?? 0,
+      conexe: data.relatedActivities ?? 0,
+      neproductive: data.nonProductiveActivities ?? 0,
+      total: data.timeSpent ?? 0,
+      urgenta:
+        typeof data.urgency === "boolean" ? (data.urgency ? "DA" : "NU") : "NU",
+      utilizareit: usesIt ? "DA" : "NU",
+      denumireit: itDescription || data.observations || null,
+      tipactivitate: data.status || data.activityType || "Completat",
     };
 
     const { data: activity, error } = await supabase
-      .from("activities")
+      .from("raport")
       .insert([activityData])
       .select()
       .single();
@@ -224,6 +309,15 @@ export async function POST(request: NextRequest) {
 // PUT - Actualizează o activitate existentă
 export async function PUT(request: NextRequest) {
   try {
+    if (!isSupabaseConfigured) {
+      return NextResponse.json(
+        {
+          error:
+            "Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local",
+        },
+        { status: 500 }
+      );
+    }
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
     const data = await request.json();
@@ -257,9 +351,9 @@ export async function PUT(request: NextRequest) {
 
     // Verifică dacă activitatea există
     const { data: existingActivity, error: fetchError } = await supabase
-      .from("activities")
+      .from("raport")
       .select("*")
-      .eq("id", Number(id))
+      .eq("raport_id", Number(id))
       .single();
 
     if (fetchError || !existingActivity) {
@@ -272,25 +366,101 @@ export async function PUT(request: NextRequest) {
     console.log("Updating activity with data:", data);
 
     // Actualizează activitatea cu toate câmpurile disponibile
+    const updateItSystems =
+      data.itSystems !== undefined ? data.itSystems : null;
+    const updateItSoftware =
+      data.itSoftware !== undefined ? data.itSoftware : null;
+
+    const combinedItDescription = (() => {
+      if (updateItSystems === null && updateItSoftware === null) {
+        return existingActivity.denumireit;
+      }
+
+      const parts = [
+        updateItSystems
+          ? `Sisteme: ${updateItSystems}`
+          : updateItSystems === ""
+          ? ""
+          : undefined,
+        updateItSoftware
+          ? `Software: ${updateItSoftware}`
+          : updateItSoftware === ""
+          ? ""
+          : undefined,
+      ].filter((value) => value !== undefined && value !== "");
+
+      if (parts.length === 0) {
+        return data.observations || null;
+      }
+
+      return parts.join(" | ");
+    })();
+
+    const updatedUsesIt = (() => {
+      if (updateItSystems === null && updateItSoftware === null) {
+        return existingActivity.utilizareit === "DA";
+      }
+
+      const systemsValue = updateItSystems ?? "";
+      const softwareValue = updateItSoftware ?? "";
+      return Boolean(systemsValue.trim() || softwareValue.trim());
+    })();
+
     const updateData = {
-      activity: data.activity,
-      work: data.work,
-      status: data.status || existingActivity.status,
-      userId: parseInt(data.userId),
-      date: data.date
+      activitate: data.activity,
+      lucrare: data.work,
+      tipactivitate:
+        data.status || data.activityType || existingActivity.tipactivitate,
+      raport_uid: parseInt(data.userId),
+      raport_data: data.date
         ? new Date(data.date).toISOString()
-        : existingActivity.date,
-      baseAct: data.baseAct || null,
-      attributes: data.attributes || null,
-      complexity: data.complexity || null,
-      timeSpent: data.timeSpent || null,
-      observations: data.observations || null,
+        : existingActivity.raport_data,
+      act: data.baseAct ?? existingActivity.act,
+      atributii:
+        data.attributes !== undefined
+          ? data.attributes
+          : existingActivity.atributii,
+      intrare:
+        data.entryReference !== undefined
+          ? data.entryReference
+          : existingActivity.intrare,
+      iesire:
+        data.exitReference !== undefined
+          ? data.exitReference
+          : existingActivity.iesire,
+      principale:
+        data.mainActivities !== undefined
+          ? data.mainActivities
+          : existingActivity.principale,
+      conexe:
+        data.relatedActivities !== undefined
+          ? data.relatedActivities
+          : existingActivity.conexe,
+      neproductive:
+        data.nonProductiveActivities !== undefined
+          ? data.nonProductiveActivities
+          : existingActivity.neproductive,
+      urgenta:
+        typeof data.urgency === "boolean"
+          ? data.urgency
+            ? "DA"
+            : "NU"
+          : existingActivity.urgenta,
+      total:
+        data.timeSpent !== undefined ? data.timeSpent : existingActivity.total,
+      denumireit:
+        combinedItDescription !== undefined && combinedItDescription !== null
+          ? combinedItDescription
+          : data.observations !== undefined
+          ? data.observations
+          : existingActivity.denumireit,
+      utilizareit: updatedUsesIt ? "DA" : "NU",
     };
 
     const { data: updatedActivity, error: updateError } = await supabase
-      .from("activities")
+      .from("raport")
       .update(updateData)
-      .eq("id", Number(id))
+      .eq("raport_id", Number(id))
       .select()
       .single();
 
@@ -318,6 +488,16 @@ export async function PUT(request: NextRequest) {
 // DELETE - Șterge o activitate existentă
 export async function DELETE(request: NextRequest) {
   try {
+    if (!isSupabaseConfigured) {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local",
+        },
+        { status: 500 }
+      );
+    }
     const { searchParams } = new URL(request.url);
     const activityId = searchParams.get("id");
 
@@ -330,9 +510,9 @@ export async function DELETE(request: NextRequest) {
 
     // Verifică dacă activitatea există
     const { data: existingActivity, error: fetchError } = await supabase
-      .from("activities")
+      .from("raport")
       .select("*")
-      .eq("id", Number(activityId))
+      .eq("raport_id", Number(activityId))
       .single();
 
     if (fetchError || !existingActivity) {
@@ -344,9 +524,9 @@ export async function DELETE(request: NextRequest) {
 
     // Șterge activitatea din baza de date
     const { error: deleteError } = await supabase
-      .from("activities")
+      .from("raport")
       .delete()
-      .eq("id", Number(activityId));
+      .eq("raport_id", Number(activityId));
 
     if (deleteError) {
       console.error("Supabase delete error:", deleteError);

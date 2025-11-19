@@ -2,12 +2,6 @@
 import React, { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
-// Import componentele create anterior
-// import Dashboard from './Dashboard';
-// import Reports from './Reports';
-// import Support from './Support';
-
-// Pentru demo, voi crea versiuni simplificate aici
 const Dashboard: React.FC = () => (
   <div className="min-h-screen bg-gray-50 pt-20">
     <div className="max-w-6xl mx-auto px-6 py-8">
@@ -734,13 +728,13 @@ const MainApp: React.FC = () => {
   const pathname = usePathname();
   const [activeSection, setActiveSection] = useState("dashboard");
 
-  // Sincronizează starea cu URL-ul curent
+  // Sincronizeaza starea cu URL-ul curent
   useEffect(() => {
     const currentSection = pathname.split("/").pop() || "dashboard";
     setActiveSection(currentSection);
   }, [pathname]);
 
-  // Funcție pentru navigare cu router
+  // Functie pentru navigare cu router
   const handleNavigate = (section: string) => {
     setActiveSection(section);
     router.push(`/${section}`);
@@ -759,7 +753,7 @@ const MainApp: React.FC = () => {
     }
   };
 
-  // Verifică dacă suntem pe pagina de login
+  // Verifica dacă suntem pe pagina de login
   const isLoginPage = pathname === "/login";
 
   return (

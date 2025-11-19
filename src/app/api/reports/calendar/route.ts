@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import {
+  supabase as sharedSupabase,
+  isSupabaseConfigured,
+} from "@/lib/supabase";
 
 // Definim tipurile pentru activități
-interface Activity {
-  id: number;
-  date: string;
-  status: string;
-  activity: string;
-  work: string;
-}
+// Activity type kept for reference
 
 interface DayActivity {
   id: number;
@@ -18,13 +15,19 @@ interface DayActivity {
   date: string;
 }
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+const supabase = sharedSupabase;
 
 export async function GET(request: NextRequest) {
   try {
+    if (!isSupabaseConfigured) {
+      return NextResponse.json(
+        {
+          error:
+            "Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local",
+        },
+        { status: 500 }
+      );
+    }
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
     const year = searchParams.get("year");
@@ -52,12 +55,13 @@ export async function GET(request: NextRequest) {
     const endDateString = endDate.toISOString();
 
     const { data: activities, error } = await supabase
-      .from("Activity")
-      .select("id, date, status, activity, work")
-      .eq("userId", parseInt(userId))
-      .gte("date", startDateString)
-      .lte("date", endDateString)
-      .order("date", { ascending: true });
+      .from("raport")
+      .select("raport_id, raport_data, tipactivitate, activitate, lucrare")
+      .eq("raport_uid", parseInt(userId))
+      .gte("raport_data", startDateString)
+      .lte("raport_data", endDateString)
+      .order("raport_data", { ascending: true })
+      .order("raport_id", { ascending: true });
 
     if (error) {
       return NextResponse.json(
@@ -71,21 +75,21 @@ export async function GET(request: NextRequest) {
     const dayActivities: { [key: string]: DayActivity[] } = {};
 
     (activities || []).forEach((activity) => {
-      const dayKey = new Date(activity.date).toISOString().split("T")[0];
+      const dayKey = new Date(activity.raport_data).toISOString().split("T")[0];
 
       if (!dayActivities[dayKey]) dayActivities[dayKey] = [];
 
       dayActivities[dayKey].push({
-        id: activity.id,
-        activity: activity.activity,
-        work: activity.work,
-        status: activity.status,
-        date: activity.date,
+        id: activity.raport_id,
+        activity: activity.activitate,
+        work: activity.lucrare || "-",
+        status: activity.tipactivitate || "Necunoscut",
+        date: activity.raport_data,
       });
 
-      if (activity.status?.toLowerCase() === "completat") {
+      if (activity.tipactivitate?.toLowerCase() === "completat") {
         completedDays.add(dayKey);
-      } else if (activity.status?.toLowerCase() === "in progres") {
+      } else if (activity.tipactivitate?.toLowerCase() === "in progres") {
         inProgressDays.add(dayKey);
       }
     });
@@ -122,7 +126,7 @@ export async function GET(request: NextRequest) {
         },
       },
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Eroare internă a serverului" },
       { status: 500 }

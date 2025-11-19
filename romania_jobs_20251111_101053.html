@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech Jobs Romania - 25 Positions</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .filter-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 15px;
+        }
+        .filter-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        .filter-group input, .filter-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .jobs-grid {
+            display: grid;
+            gap: 15px;
+        }
+        .job {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+        .job:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+            gap: 15px;
+        }
+        .job-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            flex: 1;
+        }
+        .company-badge {
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            white-space: nowrap;
+        }
+        .source-badge {
+            background: #28a745;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            margin-top: 5px;
+            display: inline-block;
+        }
+        .job-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .job-detail {
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+        .job-detail strong {
+            color: #333;
+            display: block;
+            margin-bottom: 3px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .btn:hover {
+            background: #5568d3;
+        }
+        @media (max-width: 768px) {
+            .filter-row {
+                grid-template-columns: 1fr;
+            }
+            .job-header {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🇷🇴 Tech Jobs in Romania</h1>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number">25</div>
+                <div class="stat-label">Total Jobs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">1</div>
+                <div class="stat-label">Job Sources</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">1</div>
+                <div class="stat-label">Companies</div>
+            </div>
+        </div>
+        
+        <div class="filters">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>🔍 Search:</label>
+                    <input type="text" id="searchInput" placeholder="Search by title, company, location..." onkeyup="filterJobs()">
+                </div>
+                <div class="filter-group">
+                    <label>🏢 Company:</label>
+                    <select id="companyFilter" onchange="filterJobs()">
+                        <option value="">All Companies</option>
+                        <option value="Amazon">Amazon (25)</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>📊 Source:</label>
+                    <select id="sourceFilter" onchange="filterJobs()">
+                        <option value="">All Sources</option>
+                        <option value="Amazon">Amazon (25)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div class="jobs-grid" id="jobsContainer">
+
+            <div class="job" data-title="software development engineer – 2026" data-company="Amazon" 
+                 data-source="Amazon" data-location="iasi, romania">
+                <div class="job-header">
+                    <div>
+                        <div class="job-title">Software Development Engineer – 2026</div>
+                        <span class="source-badge">Amazon</span>
+                    </div>
+                    <div class="company-badge">Amazon</div>
+                </div>
+                
+                <div class="job-details">
+                    <div class="job-detail">
+                        <strong>📍 Location:</strong>
+                        <span>Iasi, Romania</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>📂 Category:</strong>
+                        <span>Software Development</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>💼 Type:</strong>
+                        <span>full-time</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>🏠 Remote:</strong>
+                        <span>No</span>
+                    </div>
+                </div>
+                
+                <a href="https://www.amazon.jobs/en/jobs/3119226/software-development-engineer-2026" target="_blank" class="btn">✉️ Apply Now</a>
+            </div>
+
+            <div class="job" data-title="2026 applied scientist intern, amazon university talent acquisition" data-company="Amazon" 
+                 data-source="Amazon" data-location="iasi, romania">
+                <div class="job-header">
+                    <div>
+                        <div class="job-title">2026 Applied Scientist Intern, Amazon University Talent Acquisition</div>
+                        <span class="source-badge">Amazon</span>
+                    </div>
+                    <div class="company-badge">Amazon</div>
+                </div>
+                
+                <div class="job-details">
+                    <div class="job-detail">
+                        <strong>📍 Location:</strong>
+                        <span>Iasi, Romania</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>📂 Category:</strong>
+                        <span>Machine Learning Science</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>💼 Type:</strong>
+                        <span>full-time</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>🏠 Remote:</strong>
+                        <span>No</span>
+                    </div>
+                </div>
+                
+                <a href="https://www.amazon.jobs/en/jobs/3115004/2026-applied-scientist-intern-amazon-university-talent-acquisition" target="_blank" class="btn">✉️ Apply Now</a>
+            </div>
+
+            <div class="job" data-title="global recalls risk manager, eu customer remediation and risk governance" data-company="Amazon" 
+                 data-source="Amazon" data-location="iasi, romania">
+                <div class="job-header">
+                    <div>
+                        <div class="job-title">Global Recalls Risk Manager, EU Customer Remediation and Risk Governance</div>
+                        <span class="source-badge">Amazon</span>
+                    </div>
+                    <div class="company-badge">Amazon</div>
+                </div>
+                
+                <div class="job-details">
+                    <div class="job-detail">
+                        <strong>📍 Location:</strong>
+                        <span>Iasi, Romania</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>📂 Category:</strong>
+                        <span>Investigation & Loss Prevention</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>💼 Type:</strong>
+                        <span>full-time</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>🏠 Remote:</strong>
+                        <span>No</span>
+                    </div>
+                </div>
+                
+                <a href="https://www.amazon.jobs/en/jobs/3114343/global-recalls-risk-manager-eu-customer-remediation-and-risk-governance" target="_blank" class="btn">✉️ Apply Now</a>
+            </div>
+
+            <div class="job" data-title="software development manager, monitored access" data-company="Amazon" 
+                 data-source="Amazon" data-location="iasi, romania">
+                <div class="job-header">
+                    <div>
+                        <div class="job-title">Software Development Manager, Monitored Access</div>
+                        <span class="source-badge">Amazon</span>
+                    </div>
+                    <div class="company-badge">Amazon</div>
+                </div>
+                
+                <div class="job-details">
+                    <div class="job-detail">
+                        <strong>📍 Location:</strong>
+                        <span>Iasi, Romania</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>📂 Category:</strong>
+                        <span>Software Development</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>💼 Type:</strong>
+                        <span>full-time</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>🏠 Remote:</strong>
+                        <span>No</span>
+                    </div>
+                </div>
+                
+                <a href="https://www.amazon.jobs/en/jobs/3111961/software-development-manager-monitored-access" target="_blank" class="btn">✉️ Apply Now</a>
+            </div>
+
+            <div class="job" data-title="brand specialist/account manager with italian - romania" data-company="Amazon" 
+                 data-source="Amazon" data-location="bucharest, romania">
+                <div class="job-header">
+                    <div>
+                        <div class="job-title">Brand Specialist/Account Manager with Italian - Romania</div>
+                        <span class="source-badge">Amazon</span>
+                    </div>
+                    <div class="company-badge">Amazon</div>
+                </div>
+                
+                <div class="job-details">
+                    <div class="job-detail">
+                        <strong>📍 Location:</strong>
+                        <span>Bucharest, Romania</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>📂 Category:</strong>
+                        <span>Sales, Advertising, & Account Management</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>💼 Type:</strong>
+                        <span>full-time</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>🏠 Remote:</strong>
+                        <span>No</span>
+                    </div>
+                </div>
+                
+                <a href="https://www.amazon.jobs/en/jobs/3111274/brand-specialist-account-manager-with-italian-romania" target="_blank" class="btn">✉️ Apply Now</a>
+            </div>
+
+            <div class="job" data-title="brand specialist/account manager spanish " data-company="Amazon" 
+                 data-source="Amazon" data-location="bucharest, romania">
+                <div class="job-header">
+                    <div>
+                        <div class="job-title">Brand Specialist/Account Manager Spanish </div>
+                        <span class="source-badge">Amazon</span>
+                    </div>
+                    <div class="company-badge">Amazon</div>
+                </div>
+                
+                <div class="job-details">
+                    <div class="job-detail">
+                        <strong>📍 Location:</strong>
+                        <span>Bucharest, Romania</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>📂 Category:</strong>
+                        <span>Sales, Advertising, & Account Management</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>💼 Type:</strong>
+                        <span>full-time</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>🏠 Remote:</strong>
+                        <span>No</span>
+                    </div>
+                </div>
+                
+                <a href="https://www.amazon.jobs/en/jobs/3111237/brand-specialist-account-manager-spanish" target="_blank" class="btn">✉️ Apply Now</a>
+            </div>
+
+            <div class="job" data-title="brand specialist/account manager with italian - remote in romania" data-company="Amazon" 
+                 data-source="Amazon" data-location="virtual, romania">
+                <div class="job-header">
+                    <div>
+                        <div class="job-title">Brand Specialist/Account Manager with Italian - Remote in Romania</div>
+                        <span class="source-badge">Amazon</span>
+                    </div>
+                    <div class="company-badge">Amazon</div>
+                </div>
+                
+                <div class="job-details">
+                    <div class="job-detail">
+                        <strong>📍 Location:</strong>
+                        <span>Virtual, Romania</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>📂 Category:</strong>
+                        <span>Sales, Advertising, & Account Management</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>💼 Type:</strong>
+                        <span>full-time</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>🏠 Remote:</strong>
+                        <span>No</span>
+                    </div>
+                </div>
+                
+                <a href="https://www.amazon.jobs/en/jobs/3111183/brand-specialist-account-manager-with-italian-remote-in-romania" target="_blank" class="btn">✉️ Apply Now</a>
+            </div>
+
+            <div class="job" data-title="brand specialist/account manager with spanish - remote in romania " data-company="Amazon" 
+                 data-source="Amazon" data-location="virtual, romania">
+                <div class="job-header">
+                    <div>
+                        <div class="job-title">Brand Specialist/Account Manager with Spanish - Remote in Romania </div>
+                        <span class="source-badge">Amazon</span>
+                    </div>
+                    <div class="company-badge">Amazon</div>
+                </div>
+                
+                <div class="job-details">
+                    <div class="job-detail">
+                        <strong>📍 Location:</strong>
+                        <span>Virtual, Romania</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>📂 Category:</strong>
+                        <span>Sales, Advertising, & Account Management</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>💼 Type:</strong>
+                        <span>full-time</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>🏠 Remote:</strong>
+                        <span>No</span>
+                    </div>
+                </div>
+                
+                <a href="https://www.amazon.jobs/en/jobs/3110047/brand-specialist-account-manager-with-spanish-remote-in-romania" target="_blank" class="btn">✉️ Apply Now</a>
+            </div>
+
+            <div class="job" data-title="hr specialist with romanian & english - fixed term contract (12 months) - based in prague, czech republic" data-company="Amazon" 
+                 data-source="Amazon" data-location="bucharest, romania">
+                <div class="job-header">
+                    <div>
+                        <div class="job-title">HR Specialist with Romanian & English - Fixed Term Contract (12 months) - based in Prague, Czech Republic</div>
+                        <span class="source-badge">Amazon</span>
+                    </div>
+                    <div class="company-badge">Amazon</div>
+                </div>
+                
+                <div class="job-details">
+                    <div class="job-detail">
+                        <strong>📍 Location:</strong>
+                        <span>Bucharest, Romania</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>📂 Category:</strong>
+                        <span>Human Resources</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>💼 Type:</strong>
+                        <span>full-time</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>🏠 Remote:</strong>
+                        <span>No</span>
+                    </div>
+                </div>
+                
+                <a href="https://www.amazon.jobs/en/jobs/3109153/hr-specialist-with-romanian-english-fixed-term-contract-12-months-based-in-prague-czech-republic" target="_blank" class="btn">✉️ Apply Now</a>
+            </div>
+
+            <div class="job" data-title="operations manager, gsrc " data-company="Amazon" 
+                 data-source="Amazon" data-location="iasi, romania">
+                <div class="job-header">
+                    <div>
+                        <div class="job-title">Operations Manager, GSRC </div>
+                        <span class="source-badge">Amazon</span>
+                    </div>
+                    <div class="company-badge">Amazon</div>
+                </div>
+                
+                <div class="job-details">
+                    <div class="job-detail">
+                        <strong>📍 Location:</strong>
+                        <span>Iasi, Romania</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>📂 Category:</strong>
+                        <span>Corporate Operations</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>💼 Type:</strong>
+                        <span>full-time</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>🏠 Remote:</strong>
+                        <span>No</span>
+                    </div>
+                </div>
+                
+                <a href="https://www.amazon.jobs/en/jobs/3114292/operations-manager-gsrc" target="_blank" class="btn">✉️ Apply Now</a>
+            </div>
+
+            <div class="job" data-title="software development engineer - compliance shared services (coss), amazon stores" data-company="Amazon" 
+                 data-source="Amazon" data-location="bucharest, romania">
+                <div class="job-header">
+                    <div>
+                        <div class="job-title">Software Development Engineer - Compliance Shared Services (CoSS), Amazon Stores</div>
+                        <span class="source-badge">Amazon</span>
+                    </div>
+                    <div class="company-badge">Amazon</div>
+                </div>
+                
+                <div class="job-details">
+                    <div class="job-detail">
+                        <strong>📍 Location:</strong>
+                        <span>Bucharest, Romania</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>📂 Category:</strong>
+                        <span>Software Development</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>💼 Type:</strong>
+                        <span>full-time</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>🏠 Remote:</strong>
+                        <span>No</span>
+                    </div>
+                </div>
+                
+                <a href="https://www.amazon.jobs/en/jobs/3108208/software-development-engineer-compliance-shared-services-coss-amazon-stores" target="_blank" class="btn">✉️ Apply Now</a>
+            </div>
+
+            <div class="job" data-title="2026 software dev engineer intern - romania" data-company="Amazon" 
+                 data-source="Amazon" data-location="iasi, romania">
+                <div class="job-header">
+                    <div>
+                        <div class="job-title">2026 Software Dev Engineer Intern - Romania</div>
+                        <span class="source-badge">Amazon</span>
+                    </div>
+                    <div class="company-badge">Amazon</div>
+                </div>
+                
+                <div class="job-details">
+                    <div class="job-detail">
+                        <strong>📍 Location:</strong>
+                        <span>Iasi, Romania</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>📂 Category:</strong>
+                        <span>Software Development</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>💼 Type:</strong>
+                        <span>full-time</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>🏠 Remote:</strong>
+                        <span>No</span>
+                    </div>
+                </div>
+                
+                <a href="https://www.amazon.jobs/en/jobs/3074198/2026-software-dev-engineer-intern-romania" target="_blank" class="btn">✉️ Apply Now</a>
+            </div>
+
+            <div class="job" data-title="support engineer, mid level, coss" data-company="Amazon" 
+                 data-source="Amazon" data-location="bucharest, romania">
+                <div class="job-header">
+                    <div>
+                        <div class="job-title">Support Engineer, Mid Level, CoSS</div>
+                        <span class="source-badge">Amazon</span>
+                    </div>
+                    <div class="company-badge">Amazon</div>
+                </div>
+                
+                <div class="job-details">
+                    <div class="job-detail">
+                        <strong>📍 Location:</strong>
+                        <span>Bucharest, Romania</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>📂 Category:</strong>
+                        <span>Operations, IT, & Support Engineering</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>💼 Type:</strong>
+                        <span>full-time</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>🏠 Remote:</strong>
+                        <span>No</span>
+                    </div>
+                </div>
+                
+                <a href="https://www.amazon.jobs/en/jobs/3083076/support-engineer-mid-level-coss" target="_blank" class="btn">✉️ Apply Now</a>
+            </div>
+
+            <div class="job" data-title="sr. data associate with dutch and english, alexa shopping" data-company="Amazon" 
+                 data-source="Amazon" data-location="bucharest, romania">
+                <div class="job-header">
+                    <div>
+                        <div class="job-title">Sr. Data Associate with Dutch and English, Alexa Shopping</div>
+                        <span class="source-badge">Amazon</span>
+                    </div>
+                    <div class="company-badge">Amazon</div>
+                </div>
+                
+                <div class="job-details">
+                    <div class="job-detail">
+                        <strong>📍 Location:</strong>
+                        <span>Bucharest, Romania</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>📂 Category:</strong>
+                        <span>Administrative Support</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>💼 Type:</strong>
+                        <span>full-time</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>🏠 Remote:</strong>
+                        <span>No</span>
+                    </div>
+                </div>
+                
+                <a href="https://www.amazon.jobs/en/jobs/3068091/sr-data-associate-with-dutch-and-english-alexa-shopping" target="_blank" class="btn">✉️ Apply Now</a>
+            </div>
+
+            <div class="job" data-title="software development engineer in test, compliance shared services (coss), amazon stores" data-company="Amazon" 
+                 data-source="Amazon" data-location="bucharest, romania">
+                <div class="job-header">
+                    <div>
+                        <div class="job-title">Software Development Engineer in Test, Compliance Shared Services (CoSS), Amazon Stores</div>
+                        <span class="source-badge">Amazon</span>
+                    </div>
+                    <div class="company-badge">Amazon</div>
+                </div>
+                
+                <div class="job-details">
+                    <div class="job-detail">
+                        <strong>📍 Location:</strong>
+                        <span>Bucharest, Romania</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>📂 Category:</strong>
+                        <span>Software Development</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>💼 Type:</strong>
+                        <span>full-time</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>🏠 Remote:</strong>
+                        <span>No</span>
+                    </div>
+                </div>
+                
+                <a href="https://www.amazon.jobs/en/jobs/3066200/software-development-engineer-in-test-compliance-shared-services-coss-amazon-stores" target="_blank" class="btn">✉️ Apply Now</a>
+            </div>
+
+            <div class="job" data-title="hr regional partner, eu corporate, amx hrp eu team " data-company="Amazon" 
+                 data-source="Amazon" data-location="bucharest, romania">
+                <div class="job-header">
+                    <div>
+                        <div class="job-title">HR Regional Partner, EU Corporate, AMX HRP EU team </div>
+                        <span class="source-badge">Amazon</span>
+                    </div>
+                    <div class="company-badge">Amazon</div>
+                </div>
+                
+                <div class="job-details">
+                    <div class="job-detail">
+                        <strong>📍 Location:</strong>
+                        <span>Bucharest, Romania</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>📂 Category:</strong>
+                        <span>Human Resources</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>💼 Type:</strong>
+                        <span>full-time</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>🏠 Remote:</strong>
+                        <span>No</span>
+                    </div>
+                </div>
+                
+                <a href="https://www.amazon.jobs/en/jobs/3072357/hr-regional-partner-eu-corporate-amx-hrp-eu-team" target="_blank" class="btn">✉️ Apply Now</a>
+            </div>
+
+            <div class="job" data-title="senior program manager, artifact lifecycle, trustworthy shopping experience" data-company="Amazon" 
+                 data-source="Amazon" data-location="bucharest, romania">
+                <div class="job-header">
+                    <div>
+                        <div class="job-title">Senior Program Manager, Artifact Lifecycle, Trustworthy Shopping Experience</div>
+                        <span class="source-badge">Amazon</span>
+                    </div>
+                    <div class="company-badge">Amazon</div>
+                </div>
+                
+                <div class="job-details">
+                    <div class="job-detail">
+                        <strong>📍 Location:</strong>
+                        <span>Bucharest, Romania</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>📂 Category:</strong>
+                        <span>Project/Program/Product Management--Non-Tech</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>💼 Type:</strong>
+                        <span>full-time</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>🏠 Remote:</strong>
+                        <span>No</span>
+                    </div>
+                </div>
+                
+                <a href="https://www.amazon.jobs/en/jobs/3049874/senior-program-manager-artifact-lifecycle-trustworthy-shopping-experience" target="_blank" class="btn">✉️ Apply Now</a>
+            </div>
+
+            <div class="job" data-title="hr contact center associate with dutch and english – 12-months (fixed-term) contract , mhls (my hr live support)" data-company="Amazon" 
+                 data-source="Amazon" data-location="virtual, romania">
+                <div class="job-header">
+                    <div>
+                        <div class="job-title">HR Contact Center Associate with Dutch and English – 12-months (fixed-term) contract , MHLS (My HR Live Support)</div>
+                        <span class="source-badge">Amazon</span>
+                    </div>
+                    <div class="company-badge">Amazon</div>
+                </div>
+                
+                <div class="job-details">
+                    <div class="job-detail">
+                        <strong>📍 Location:</strong>
+                        <span>Virtual, Romania</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>📂 Category:</strong>
+                        <span>Human Resources</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>💼 Type:</strong>
+                        <span>full-time</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>🏠 Remote:</strong>
+                        <span>No</span>
+                    </div>
+                </div>
+                
+                <a href="https://www.amazon.jobs/en/jobs/3040310/hr-contact-center-associate-with-dutch-and-english-12-months-fixed-term-contract-mhls-my-hr-live-support" target="_blank" class="btn">✉️ Apply Now</a>
+            </div>
+
+            <div class="job" data-title="content test specialist - spanish speaker, partner support & services, fixed term contract 12 months" data-company="Amazon" 
+                 data-source="Amazon" data-location="bucharest, romania">
+                <div class="job-header">
+                    <div>
+                        <div class="job-title">Content Test Specialist - Spanish speaker, Partner Support & Services, Fixed Term Contract 12 months</div>
+                        <span class="source-badge">Amazon</span>
+                    </div>
+                    <div class="company-badge">Amazon</div>
+                </div>
+                
+                <div class="job-details">
+                    <div class="job-detail">
+                        <strong>📍 Location:</strong>
+                        <span>Bucharest, Romania</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>📂 Category:</strong>
+                        <span>Editorial, Writing, & Content Management</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>💼 Type:</strong>
+                        <span>full-time</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>🏠 Remote:</strong>
+                        <span>No</span>
+                    </div>
+                </div>
+                
+                <a href="https://www.amazon.jobs/en/jobs/3044201/content-test-specialist-spanish-speaker-partner-support-services-fixed-term-contract-12-months" target="_blank" class="btn">✉️ Apply Now</a>
+            </div>
+
+            <div class="job" data-title="process lead with english and dutch, alexa shopping optima" data-company="Amazon" 
+                 data-source="Amazon" data-location="bucharest, romania">
+                <div class="job-header">
+                    <div>
+                        <div class="job-title">Process Lead with English and Dutch, Alexa Shopping OPTIMA</div>
+                        <span class="source-badge">Amazon</span>
+                    </div>
+                    <div class="company-badge">Amazon</div>
+                </div>
+                
+                <div class="job-details">
+                    <div class="job-detail">
+                        <strong>📍 Location:</strong>
+                        <span>Bucharest, Romania</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>📂 Category:</strong>
+                        <span>Sales, Advertising, & Account Management</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>💼 Type:</strong>
+                        <span>full-time</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>🏠 Remote:</strong>
+                        <span>No</span>
+                    </div>
+                </div>
+                
+                <a href="https://www.amazon.jobs/en/jobs/3034291/process-lead-with-english-and-dutch-alexa-shopping-optima" target="_blank" class="btn">✉️ Apply Now</a>
+            </div>
+
+            <div class="job" data-title="software development engineer in test, compliance shared services (coss), amazon stores" data-company="Amazon" 
+                 data-source="Amazon" data-location="bucharest, romania">
+                <div class="job-header">
+                    <div>
+                        <div class="job-title">Software Development Engineer in Test, Compliance Shared Services (CoSS), Amazon Stores</div>
+                        <span class="source-badge">Amazon</span>
+                    </div>
+                    <div class="company-badge">Amazon</div>
+                </div>
+                
+                <div class="job-details">
+                    <div class="job-detail">
+                        <strong>📍 Location:</strong>
+                        <span>Bucharest, Romania</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>📂 Category:</strong>
+                        <span>Software Development</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>💼 Type:</strong>
+                        <span>full-time</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>🏠 Remote:</strong>
+                        <span>No</span>
+                    </div>
+                </div>
+                
+                <a href="https://www.amazon.jobs/en/jobs/3122359/software-development-engineer-in-test-compliance-shared-services-coss-amazon-stores" target="_blank" class="btn">✉️ Apply Now</a>
+            </div>
+
+            <div class="job" data-title="senior technical program manager, amazon compliance shared services" data-company="Amazon" 
+                 data-source="Amazon" data-location="bucharest, romania">
+                <div class="job-header">
+                    <div>
+                        <div class="job-title">Senior Technical Program Manager, Amazon Compliance Shared Services</div>
+                        <span class="source-badge">Amazon</span>
+                    </div>
+                    <div class="company-badge">Amazon</div>
+                </div>
+                
+                <div class="job-details">
+                    <div class="job-detail">
+                        <strong>📍 Location:</strong>
+                        <span>Bucharest, Romania</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>📂 Category:</strong>
+                        <span>Project/Program/Product Management--Technical</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>💼 Type:</strong>
+                        <span>full-time</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>🏠 Remote:</strong>
+                        <span>No</span>
+                    </div>
+                </div>
+                
+                <a href="https://www.amazon.jobs/en/jobs/2967729/senior-technical-program-manager-amazon-compliance-shared-services" target="_blank" class="btn">✉️ Apply Now</a>
+            </div>
+
+            <div class="job" data-title="support engineer , coss" data-company="Amazon" 
+                 data-source="Amazon" data-location="iasi, romania">
+                <div class="job-header">
+                    <div>
+                        <div class="job-title">Support Engineer , CoSS</div>
+                        <span class="source-badge">Amazon</span>
+                    </div>
+                    <div class="company-badge">Amazon</div>
+                </div>
+                
+                <div class="job-details">
+                    <div class="job-detail">
+                        <strong>📍 Location:</strong>
+                        <span>Iasi, Romania</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>📂 Category:</strong>
+                        <span>Operations, IT, & Support Engineering</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>💼 Type:</strong>
+                        <span>full-time</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>🏠 Remote:</strong>
+                        <span>No</span>
+                    </div>
+                </div>
+                
+                <a href="https://www.amazon.jobs/en/jobs/2966931/support-engineer-coss" target="_blank" class="btn">✉️ Apply Now</a>
+            </div>
+
+            <div class="job" data-title="support engineer , coss" data-company="Amazon" 
+                 data-source="Amazon" data-location="bucharest, romania">
+                <div class="job-header">
+                    <div>
+                        <div class="job-title">Support Engineer , CoSS</div>
+                        <span class="source-badge">Amazon</span>
+                    </div>
+                    <div class="company-badge">Amazon</div>
+                </div>
+                
+                <div class="job-details">
+                    <div class="job-detail">
+                        <strong>📍 Location:</strong>
+                        <span>Bucharest, Romania</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>📂 Category:</strong>
+                        <span>Operations, IT, & Support Engineering</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>💼 Type:</strong>
+                        <span>full-time</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>🏠 Remote:</strong>
+                        <span>No</span>
+                    </div>
+                </div>
+                
+                <a href="https://www.amazon.jobs/en/jobs/2910480/support-engineer-coss" target="_blank" class="btn">✉️ Apply Now</a>
+            </div>
+
+            <div class="job" data-title="hr contact center associate with french and english (remote) – 12-months (fixed-term) contract " data-company="Amazon" 
+                 data-source="Amazon" data-location="virtual, romania">
+                <div class="job-header">
+                    <div>
+                        <div class="job-title">HR Contact Center Associate with French and English (Remote) – 12-months (fixed-term) contract </div>
+                        <span class="source-badge">Amazon</span>
+                    </div>
+                    <div class="company-badge">Amazon</div>
+                </div>
+                
+                <div class="job-details">
+                    <div class="job-detail">
+                        <strong>📍 Location:</strong>
+                        <span>Virtual, Romania</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>📂 Category:</strong>
+                        <span>Human Resources</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>💼 Type:</strong>
+                        <span>full-time</span>
+                    </div>
+                    <div class="job-detail">
+                        <strong>🏠 Remote:</strong>
+                        <span>No</span>
+                    </div>
+                </div>
+                
+                <a href="https://www.amazon.jobs/en/jobs/2841788/hr-contact-center-associate-with-french-and-english-remote-12-months-fixed-term-contract" target="_blank" class="btn">✉️ Apply Now</a>
+            </div>
+
+        </div>
+    </div>
+    
+    <script>
+        function filterJobs() {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const companyFilter = document.getElementById('companyFilter').value;
+            const sourceFilter = document.getElementById('sourceFilter').value;
+            const jobs = document.querySelectorAll('.job');
+            
+            jobs.forEach(job => {
+                const title = job.getAttribute('data-title');
+                const company = job.getAttribute('data-company');
+                const source = job.getAttribute('data-source');
+                const location = job.getAttribute('data-location');
+                
+                const matchesSearch = title.includes(searchInput) || location.includes(searchInput) || company.toLowerCase().includes(searchInput);
+                const matchesCompany = !companyFilter || company === companyFilter;
+                const matchesSource = !sourceFilter || source === sourceFilter;
+                
+                if (matchesSearch && matchesCompany && matchesSource) {
+                    job.style.display = '';
+                } else {
+                    job.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

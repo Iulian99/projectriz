@@ -1,4 +1,3 @@
-// checked
 "use client";
 
 import { useState } from "react";
@@ -39,11 +38,11 @@ interface LoginResponse {
 }
 
 export default function LoginPage() {
-  const { login, isAuthenticated } = useAuth();
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string>("");
-  const [success, setSuccess] = useState<string>("");
+  const { login, isAuthenticated } = useAuth(); // check auth status
+  const [showPassword, setShowPassword] = useState(false); // toggle password visibility
+  const [isLoading, setIsLoading] = useState(false); // loading state
+  const [error, setError] = useState<string>(""); // error message
+  const [success, setSuccess] = useState<string>(""); // success message
 
   const [formData, setFormData] = useState<LoginFormData>({
     identifier: "",
@@ -80,7 +79,7 @@ export default function LoginPage() {
 
         login(data.user);
 
-        // Redirect explicit către dashboard după login reușit
+        // Redirect to dashboard after delay : 1000ms
         setTimeout(() => {
           window.location.href = "/dashboard";
         }, 1000);
@@ -94,7 +93,8 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   };
-
+  
+  // handle input changes
   const handleInputChange = (
     field: keyof LoginFormData,
     value: string | boolean
@@ -109,11 +109,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-100 via-white to-red-200 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-32 w-80 h-80 bg-red-300 rounded-full opacity-20 blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-32 w-80 h-80 bg-red-200 rounded-full opacity-20 blur-3xl"></div>
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute -top-40 -right-32 w-80 h-80 bg-blue-100 rounded-full opacity-40 blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-32 w-80 h-80 bg-cyan-100 rounded-full opacity-30 blur-3xl"></div>
       </div>
 
       {/* Water Bubbles Component */}

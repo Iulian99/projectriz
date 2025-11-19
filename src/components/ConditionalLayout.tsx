@@ -14,7 +14,7 @@ export default function ConditionalLayout({
 }: ConditionalLayoutProps) {
   const pathname = usePathname();
 
-  // Aplică culoarea de fundal selectată de utilizator
+  // Aplicare culoarea de fundal selectată de utilizator
   useBackgroundColor();
 
   // Pagini care nu afișează navbar-ul

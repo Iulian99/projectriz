@@ -22,35 +22,42 @@ interface UserProfile {
 }
 
 export default function ProfilePage() {
-  const { user } = useAuth();
-  const [isEditing, setIsEditing] = useState(false);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const { user } = useAuth(); // get logged in user
+  const [isEditing, setIsEditing] = useState(false); // edit mode
+  const [profile, setProfile] = useState<UserProfile | null>(null); // user profile data
+  const [isLoading, setIsLoading] = useState(true); // loading state
+  const [isSaving, setIsSaving] = useState(false); // saving state
+  const [error, setError] = useState(""); // error message
+  const [success, setSuccess] = useState(""); // success message
+  const [canEdit, setCanEdit] = useState(true); // edit permission
 
   // Load profile data
   const fetchProfile = useCallback(async () => {
-    if (!user?.id) return;
+    if (!user?.id && !user?.identifier) return;
 
     try {
       setIsLoading(true);
-      const response = await fetch(`/api/profile?userId=${user.id}`);
+      const params = new URLSearchParams();
+      if (user?.id) params.append("userId", String(user.id));
+      if (user?.identifier) params.append("identifier", user.identifier);
+      const response = await fetch(`/api/profile?${params.toString()}`);
       const data = await response.json();
 
       if (data.success) {
         setProfile(data.user);
+        setCanEdit(data.canEdit !== false);
       } else {
         setError(data.error || "Eroare la încărcarea profilului");
+        setCanEdit(false);
       }
     } catch (error) {
       console.error("Eroare la încărcarea profilului:", error);
       setError("Eroare de conexiune");
+      setCanEdit(false);
     } finally {
       setIsLoading(false);
     }
-  }, [user?.id]);
+  }, [user?.id, user?.identifier]);
 
   useEffect(() => {
     fetchProfile();
@@ -59,6 +66,10 @@ export default function ProfilePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!profile) return;
+    if (!canEdit) {
+      setError("Profilul este doar în citire pentru acest cont.");
+      return;
+    }
 
     setIsSaving(true);
     setError("");
@@ -72,6 +83,7 @@ export default function ProfilePage() {
         },
         body: JSON.stringify({
           userId: profile.id,
+          identifier: profile.identifier,
           name: profile.name,
           email: profile.email,
           phone: profile.phone,
@@ -83,6 +95,7 @@ export default function ProfilePage() {
 
       if (data.success) {
         setProfile(data.user);
+        setCanEdit(data.canEdit !== false);
         setSuccess("Profilul a fost actualizat cu succes!");
         setIsEditing(false);
       } else {
@@ -109,6 +122,7 @@ export default function ProfilePage() {
       isSaving={isSaving}
       error={error}
       success={success}
+      canEdit={canEdit}
       setIsEditing={setIsEditing}
       setProfile={setProfile}
       handleSubmit={handleSubmit}

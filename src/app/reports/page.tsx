@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../contexts/AuthContext";
 
+// Calendar
 interface CalendarData {
   completedDays: number[];
   inProgressDays: number[];
@@ -17,7 +18,7 @@ interface CalendarData {
     daysInMonth: number;
   };
 }
-
+// 
 interface DayActivity {
   id: number;
   date: Date;
@@ -28,20 +29,20 @@ interface DayActivity {
 
 export default function ReportsPage() {
   const router = useRouter();
-  const { user } = useAuth();
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
-  const [calendarData, setCalendarData] = useState<CalendarData | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuth(); // utilizator autentificat
+  const [currentDate, setCurrentDate] = useState(new Date()); // Data curenta
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false); // Stare generare raport
+  const [calendarData, setCalendarData] = useState<CalendarData | null>(null); // Date calendar
+  const [isLoading, setIsLoading] = useState(false); // Stare incarcare date
   const [reportStatus, setReportStatus] = useState<{
     success: boolean;
     message: string;
-  } | null>(null);
+  } | null>(null);// Stare generare raport
 
-  // Încărcare date calendar din API
+  // Incarcare date calendar din API
   const loadCalendarData = useCallback(async () => {
     if (!user?.id) return;
-
+  
     setIsLoading(true);
     try {
       const year = currentDate.getFullYear();
@@ -71,31 +72,32 @@ export default function ReportsPage() {
     }
   }, [user?.id, currentDate]);
 
-  // Încarcă datele când se schimbă luna sau utilizatorul
+  // Incarcare date cand se schimba luna / utilizatorul
   useEffect(() => {
     loadCalendarData();
   }, [loadCalendarData]);
 
-  // Calculează datele pentru calendar
+  // Datele pentru calendar
   const daysInMonth = new Date(
     currentDate.getFullYear(),
     currentDate.getMonth() + 1,
     0
   ).getDate();
-
+  // Datele despre zile completate si in progres
   const completedDays = calendarData?.completedDays || [];
   const inProgressDays = calendarData?.inProgressDays || [];
 
+  // Prima zi a lunii
   const firstDayOfWeek = new Date(
     currentDate.getFullYear(),
     currentDate.getMonth(),
     1
   ).getDay();
 
-  // Convertește la format european (Luni = 0, Duminică = 6)
+  // Convertire format european (Luni = 0, Duminica = 6)
   const firstDayEuropean = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
 
-  // Helper functions for Romanian holidays
+  // Zile libere naționale
   function getRomanianHolidays(year: number) {
     return [
       { date: new Date(year, 0, 1), name: "Anul Nou" },
@@ -117,7 +119,7 @@ export default function ReportsPage() {
     const holidays = getRomanianHolidays(date.getFullYear());
     return holidays.some((h) => h.date.toDateString() === date.toDateString());
   }
-
+  
   function getHolidayName(date: Date) {
     const holidays = getRomanianHolidays(date.getFullYear());
     const found = holidays.find(
@@ -148,7 +150,7 @@ export default function ReportsPage() {
     for (let day = 1; day <= daysInMonth; day++) {
       const isToday = isCurrentMonth && day === today.getDate();
 
-      // Calculează ziua săptămânii corect
+      // Calculare ziua saptamanii
       const fullDate = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth(),
@@ -161,13 +163,13 @@ export default function ReportsPage() {
       const holidayName = getHolidayName(fullDate);
       const isNonWorkingDay = isWeekend || isHoliday;
 
-      // Verifică dacă ziua este completată sau în progres
+      // Verifica zi -> completata sau în progres
       const isCompleted = completedDays.includes(day);
       const isInProgress = inProgressDays.includes(day);
       const dayActivities = calendarData?.dayActivities?.[day.toString()] || [];
       const hasActivities = dayActivities.length > 0;
 
-      // Determină stilurile pentru diferite stări
+      // Stiluri pentru diferite stari
       let dayStyles =
         "calendar-day h-16 w-full flex flex-col items-center justify-center text-sm font-semibold transition-all duration-300 relative overflow-hidden border border-transparent group rounded-lg";
 
@@ -201,7 +203,7 @@ export default function ReportsPage() {
         dayStyles += " cursor-not-allowed opacity-75";
       }
 
-      // Tooltip pentru activități
+      // Tooltip activități
       let tooltip = "";
       if (isHoliday) {
         tooltip = holidayName;
@@ -240,7 +242,7 @@ export default function ReportsPage() {
         >
           <span className="text-base font-bold mb-1">{day}</span>
 
-          {/* Numele sărbătorii pentru zilele de sărbătoare */}
+          {/* Numele sarbatorii -> zilele de sărbătoare */}
           {isHoliday && holidayName && (
             <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-full px-1">
               <span className="text-xs text-red-700 font-medium text-center block leading-tight truncate">
@@ -249,7 +251,7 @@ export default function ReportsPage() {
             </div>
           )}
 
-          {/* Indicator pentru activități */}
+          {/* Indicator -> activitati */}
           {hasActivities && !isNonWorkingDay && (
             <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2">
               <div
@@ -264,14 +266,14 @@ export default function ReportsPage() {
             </div>
           )}
 
-          {/* Numărul de activități pentru zilele cu multe activități */}
+          {/* Numar activitati -> zile cu multe activități */}
           {dayActivities.length > 1 && (
             <span className="absolute top-2 right-2 text-xs bg-white/90 backdrop-blur-sm rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-sm border border-gray-200">
               {dayActivities.length}
             </span>
           )}
 
-          {/* Indicator pentru ziua curentă */}
+          {/* Indicator pentru ziua curenta */}
           {isToday && (
             <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
           )}

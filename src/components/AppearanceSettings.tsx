@@ -14,7 +14,6 @@ const predefinedColors: ColorOption[] = [
   { name: "Albastru Deschis", value: "#eff6ff", gradient: "bg-blue-50" },
   { name: "Verde Deschis", value: "#f0fdf4", gradient: "bg-green-50" },
   { name: "Violet Deschis", value: "#faf5ff", gradient: "bg-purple-50" },
-  { name: "Roz Deschis", value: "#fdf2f8", gradient: "bg-pink-50" },
   { name: "Galben Deschis", value: "#fefce8", gradient: "bg-yellow-50" },
   { name: "Portocaliu Deschis", value: "#fff7ed", gradient: "bg-orange-50" },
   { name: "Indigo Deschis", value: "#eef2ff", gradient: "bg-indigo-50" },
@@ -51,7 +50,7 @@ const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState("");
 
-  // Încarcă culoarea utilizatorului la montarea componentei
+  // Culoarea utilizatorului la montarea componentei
   const fetchUserSettings = useCallback(async () => {
     if (!user?.id) return;
 

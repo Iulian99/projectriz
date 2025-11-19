@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 // GET - Obține toți subordonații unui manager
 export async function GET(request: NextRequest) {
   try {
+    if (!isSupabaseConfigured) {
+      return NextResponse.json(
+        {
+          error:
+            "Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local",
+        },
+        { status: 500 }
+      );
+    }
     const { searchParams } = new URL(request.url);
     const managerId = searchParams.get("managerId");
 
@@ -21,7 +25,7 @@ export async function GET(request: NextRequest) {
 
     // Obținem toți utilizatorii care au acest manager ID folosind Supabase
     const { data: subordinates, error } = await supabase
-      .from("User")
+      .from("users")
       .select("id, name, identifier, email, department, position, role")
       .eq("managerId", parseInt(managerId));
 

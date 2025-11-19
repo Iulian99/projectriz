@@ -1,0 +1,1933 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keysight Jobs - Romania</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .filter-group {
+            margin-bottom: 15px;
+        }
+        .filter-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        .filter-group input, .filter-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .job {
+            background: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .job:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+        .job-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #667eea;
+            flex: 1;
+        }
+        .job-index {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+        .job-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .job-detail {
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        .job-detail strong {
+            color: #333;
+            display: block;
+            margin-bottom: 3px;
+            font-size: 0.9em;
+        }
+        .job-detail span {
+            color: #666;
+        }
+        .remote-yes {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .remote-no {
+            color: #6c757d;
+        }
+        .job-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #218838;
+        }
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            .job-header {
+                flex-direction: column;
+            }
+            .job-index {
+                margin-left: 0;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Keysight Jobs in Romania</h1>
+        
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-number">47</div>
+                <div class="stat-label">Total Jobs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">43</div>
+                <div class="stat-label">Remote Jobs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">9</div>
+                <div class="stat-label">Categories</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">5</div>
+                <div class="stat-label">Job Types</div>
+            </div>
+        </div>
+        
+        <div class="filters">
+            <div class="filter-group">
+                <label>🔍 Search:</label>
+                <input type="text" id="searchInput" placeholder="Search by title, location, category..." onkeyup="filterJobs()">
+            </div>
+        </div>
+        
+        <div id="jobsContainer">
+
+        <div class="job" data-title="c/c++ software developer" data-location="bucharest, bucuresti ro" data-category="r&d">
+            <div class="job-header">
+                <div class="job-title">C/C++ Software Developer</div>
+                <div class="job-index">#1</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>49933</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Bucharest, Bucuresti RO</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-no">No</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>R&D</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Campus (ITW)</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://globalcareers-keysight.icims.com/jobs/49933/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/49933?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://globalcareers-keysight.icims.com/jobs/49933/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="senior software engineer linux/python" data-location="bucharest, bucuresti ro" data-category="r&d">
+            <div class="job-header">
+                <div class="job-title">Senior Software Engineer Linux/Python</div>
+                <div class="job-index">#2</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>49307</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Bucharest, Bucuresti RO</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-no">No</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>R&D</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://globalcareers-keysight.icims.com/jobs/49307/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/49307?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://globalcareers-keysight.icims.com/jobs/49307/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="expert information security engineer" data-location="multiple" data-category="it">
+            <div class="job-header">
+                <div class="job-title">Expert Information Security Engineer</div>
+                <div class="job-index">#3</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>28012</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Multiple</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>IT</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://globalcareers-keysight.icims.com/jobs/28012/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/28012?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://globalcareers-keysight.icims.com/jobs/28012/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="software qa engineer" data-location="bucharest, bucuresti ro" data-category="r&d">
+            <div class="job-header">
+                <div class="job-title">Software QA Engineer</div>
+                <div class="job-index">#4</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>49689</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Bucharest, Bucuresti RO</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>R&D</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Internal Temporary Worker</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://globalcareers-keysight.icims.com/jobs/49689/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/49689?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://globalcareers-keysight.icims.com/jobs/49689/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="program manager – wireless r&d; (5g / 6g)" data-location="multiple" data-category="services & support">
+            <div class="job-header">
+                <div class="job-title">Program Manager – Wireless R&D; (5G / 6G)</div>
+                <div class="job-index">#5</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>49862</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Multiple</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-no">No</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>Services & Support</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://globalcareers-keysight.icims.com/jobs/49862/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/49862?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://globalcareers-keysight.icims.com/jobs/49862/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="qa automation engineer" data-location="bucharest, bucuresti ro" data-category="r&d">
+            <div class="job-header">
+                <div class="job-title">QA Automation Engineer</div>
+                <div class="job-index">#6</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>48692</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Bucharest, Bucuresti RO</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-no">No</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>R&D</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Internal Temporary Worker</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://globalcareers-keysight.icims.com/jobs/48692/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/48692?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://globalcareers-keysight.icims.com/jobs/48692/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="district sales manager - aerospace & defense" data-location="multiple" data-category="sales">
+            <div class="job-header">
+                <div class="job-title">District Sales Manager - Aerospace & Defense</div>
+                <div class="job-index">#7</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>49261</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Multiple</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>Sales</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://globalcareers-keysight.icims.com/jobs/49261/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/49261?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://globalcareers-keysight.icims.com/jobs/49261/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="regulatory, master" data-location="multiple" data-category="quality/regulatory">
+            <div class="job-header">
+                <div class="job-title">Regulatory, Master</div>
+                <div class="job-index">#8</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>49999</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Multiple</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>Quality/Regulatory</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://globalcareers-keysight.icims.com/jobs/49999/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/49999?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://globalcareers-keysight.icims.com/jobs/49999/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="working student (m/f/d) in the field of technical project management" data-location="bochum, nordrhein-westfalen de" data-category="general">
+            <div class="job-header">
+                <div class="job-title">Working student (m/f/d) in the field of technical project management</div>
+                <div class="job-index">#9</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>49929</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Bochum, Nordrhein-Westfalen DE</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>General</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Intern</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://globalcareers-keysight.icims.com/jobs/49929/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/49929?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://globalcareers-keysight.icims.com/jobs/49929/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="customs compliance expert" data-location="delft, nl" data-category="manufacturing">
+            <div class="job-header">
+                <div class="job-title">Customs Compliance Expert</div>
+                <div class="job-index">#10</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>48572</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Delft, NL</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>Manufacturing</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://globalcareers-keysight.icims.com/jobs/48572/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/48572?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://globalcareers-keysight.icims.com/jobs/48572/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="rf/digital solutions engineer" data-location="les ulis, fr" data-category="sales">
+            <div class="job-header">
+                <div class="job-title">RF/Digital Solutions Engineer</div>
+                <div class="job-index">#11</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>47281</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Les Ulis, FR</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>Sales</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://globalcareers-keysight.icims.com/jobs/47281/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/47281?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://globalcareers-keysight.icims.com/jobs/47281/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="business development engineer (services)" data-location="les ulis, fr" data-category="services & support">
+            <div class="job-header">
+                <div class="job-title">Business Development Engineer (Services)</div>
+                <div class="job-index">#12</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>48909</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Les Ulis, FR</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>Services & Support</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://globalcareers-keysight.icims.com/jobs/48909/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/48909?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://globalcareers-keysight.icims.com/jobs/48909/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="ai/ml engineer" data-location="barcelona, barcelona es" data-category="r&d">
+            <div class="job-header">
+                <div class="job-title">AI/ML Engineer</div>
+                <div class="job-index">#13</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>47263</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Barcelona, Barcelona ES</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>R&D</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://globalcareers-keysight.icims.com/jobs/47263/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/47263?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://globalcareers-keysight.icims.com/jobs/47263/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="regional export control manager" data-location="multiple" data-category="quality/regulatory">
+            <div class="job-header">
+                <div class="job-title">Regional Export Control Manager</div>
+                <div class="job-index">#14</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>49637</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Multiple</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>Quality/Regulatory</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://globalcareers-keysight.icims.com/jobs/49637/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/49637?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://globalcareers-keysight.icims.com/jobs/49637/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="rf/mw solutions engineer" data-location="wokingham, berkshire gb" data-category="sales">
+            <div class="job-header">
+                <div class="job-title">RF/MW Solutions Engineer</div>
+                <div class="job-index">#15</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>47334</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Wokingham, Berkshire GB</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>Sales</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://globalcareers-keysight.icims.com/jobs/47334/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/47334?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://globalcareers-keysight.icims.com/jobs/47334/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="solution engineer for visibility products" data-location="multiple" data-category="services & support">
+            <div class="job-header">
+                <div class="job-title">Solution Engineer for Visibility Products</div>
+                <div class="job-index">#16</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>49633</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Multiple</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>Services & Support</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://globalcareers-keysight.icims.com/jobs/49633/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/49633?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://globalcareers-keysight.icims.com/jobs/49633/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="senior rf solutions business development engineer" data-location="edinburgh, lothian region gb" data-category="marketing">
+            <div class="job-header">
+                <div class="job-title">Senior RF Solutions Business Development Engineer</div>
+                <div class="job-index">#17</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>48627</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Edinburgh, Lothian Region GB</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>Marketing</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://globalcareers-keysight.icims.com/jobs/48627/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/48627?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://globalcareers-keysight.icims.com/jobs/48627/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="senior software engineer – ai/ml systems" data-location="gurgaon, haryana in" data-category="r&d">
+            <div class="job-header">
+                <div class="job-title">Senior Software Engineer – AI/ML Systems</div>
+                <div class="job-index">#18</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>49947</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Gurgaon, Haryana IN</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>R&D</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://globalcareers-keysight.icims.com/jobs/49947/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/49947?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://globalcareers-keysight.icims.com/jobs/49947/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="machine learning engineer, data & analytics" data-location="gurgaon, haryana in" data-category="it">
+            <div class="job-header">
+                <div class="job-title">Machine Learning Engineer, Data & Analytics</div>
+                <div class="job-index">#19</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>49832</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Gurgaon, Haryana IN</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>IT</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://globalcareers-keysight.icims.com/jobs/49832/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/49832?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://globalcareers-keysight.icims.com/jobs/49832/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="expression of interest: senior business development consultant – plm testing" data-location="multiple" data-category="marketing">
+            <div class="job-header">
+                <div class="job-title">Expression of Interest: Senior Business Development Consultant – PLM testing</div>
+                <div class="job-index">#20</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>48565</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Multiple</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>Marketing</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://globalcareers-keysight.icims.com/jobs/48565/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/48565?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://globalcareers-keysight.icims.com/jobs/48565/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="advanced growth insights & ai analyst, data and analytics" data-location="bangalore, karnataka in" data-category="it">
+            <div class="job-header">
+                <div class="job-title">Advanced Growth Insights & AI Analyst, Data and Analytics</div>
+                <div class="job-index">#21</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>49068</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Bangalore, Karnataka IN</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>IT</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://globalcareers-keysight.icims.com/jobs/49068/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/49068?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://globalcareers-keysight.icims.com/jobs/49068/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="machine learning engineer" data-location="bangalore, karnataka in" data-category="it">
+            <div class="job-header">
+                <div class="job-title">Machine Learning Engineer</div>
+                <div class="job-index">#22</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>48307</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Bangalore, Karnataka IN</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>IT</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://globalcareers-keysight.icims.com/jobs/48307/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/48307?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://globalcareers-keysight.icims.com/jobs/48307/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="r&d engineer 5, software" data-location="bangalore, karnataka in" data-category="r&d">
+            <div class="job-header">
+                <div class="job-title">R&D Engineer 5, Software</div>
+                <div class="job-index">#23</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>48902</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Bangalore, Karnataka IN</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>R&D</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://globalcareers-keysight.icims.com/jobs/48902/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/48902?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://globalcareers-keysight.icims.com/jobs/48902/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="partner account manager - distribution support and sales" data-location="ottawa, ontario ca" data-category="sales">
+            <div class="job-header">
+                <div class="job-title">Partner Account Manager - Distribution Support and Sales</div>
+                <div class="job-index">#24</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>49024</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Ottawa, Ontario CA</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>Sales</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://globalcareers-keysight.icims.com/jobs/49024/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/49024?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://globalcareers-keysight.icims.com/jobs/49024/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="electro optical software product manager" data-location="multiple" data-category="marketing">
+            <div class="job-header">
+                <div class="job-title">Electro Optical Software Product Manager</div>
+                <div class="job-index">#25</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>50012</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Multiple</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>Marketing</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://careers-keysight.icims.com/jobs/50012/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/50012?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://careers-keysight.icims.com/jobs/50012/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="partner account manager - distribution support and sales" data-location="multiple" data-category="sales">
+            <div class="job-header">
+                <div class="job-title">Partner Account Manager - Distribution Support and Sales</div>
+                <div class="job-index">#26</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>49681</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Multiple</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>Sales</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://careers-keysight.icims.com/jobs/49681/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/49681?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://careers-keysight.icims.com/jobs/49681/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="regional sales manager, federal (dod)" data-location="multiple" data-category="sales">
+            <div class="job-header">
+                <div class="job-title">Regional Sales Manager, Federal (DoD)</div>
+                <div class="job-index">#27</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>50014</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Multiple</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>Sales</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://careers-keysight.icims.com/jobs/50014/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/50014?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://careers-keysight.icims.com/jobs/50014/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="business development engineer - grid integration test" data-location="multiple" data-category="marketing">
+            <div class="job-header">
+                <div class="job-title">Business Development Engineer - Grid Integration Test</div>
+                <div class="job-index">#28</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>48444</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Multiple</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>Marketing</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://careers-keysight.icims.com/jobs/48444/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/48444?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://careers-keysight.icims.com/jobs/48444/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="account manager" data-location="multiple" data-category="sales">
+            <div class="job-header">
+                <div class="job-title">Account Manager</div>
+                <div class="job-index">#29</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>27414</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Multiple</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>Sales</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://careers-keysight.icims.com/jobs/27414/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/27414?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://careers-keysight.icims.com/jobs/27414/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="strategic account manager" data-location="everett, washington us" data-category="sales">
+            <div class="job-header">
+                <div class="job-title">Strategic Account Manager</div>
+                <div class="job-index">#30</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>49868</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Everett, Washington US</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>Sales</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://careers-keysight.icims.com/jobs/49868/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/49868?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://careers-keysight.icims.com/jobs/49868/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="senior director, strategic planning and portfolio management" data-location="multiple" data-category="r&d">
+            <div class="job-header">
+                <div class="job-title">Senior Director, Strategic Planning and Portfolio Management</div>
+                <div class="job-index">#31</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>50021</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Multiple</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>R&D</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://careers-keysight.icims.com/jobs/50021/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/50021?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://careers-keysight.icims.com/jobs/50021/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="senior product manager, keysight software manager (ksm)" data-location="multiple" data-category="r&d">
+            <div class="job-header">
+                <div class="job-title">Senior Product Manager, Keysight Software Manager (KSM)</div>
+                <div class="job-index">#32</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>49869</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Multiple</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>R&D</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://careers-keysight.icims.com/jobs/49869/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/49869?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://careers-keysight.icims.com/jobs/49869/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="partner account manager - distribution support and sales" data-location="multiple" data-category="sales">
+            <div class="job-header">
+                <div class="job-title">Partner Account Manager - Distribution Support and Sales</div>
+                <div class="job-index">#33</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>49816</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Multiple</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>Sales</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://careers-keysight.icims.com/jobs/49816/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/49816?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://careers-keysight.icims.com/jobs/49816/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="inside sales manager" data-location="denver, colorado us" data-category="sales">
+            <div class="job-header">
+                <div class="job-title">Inside Sales Manager</div>
+                <div class="job-index">#34</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>49884</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Denver, Colorado US</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>Sales</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://careers-keysight.icims.com/jobs/49884/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/49884?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://careers-keysight.icims.com/jobs/49884/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="advanced growth insights & ai analyst" data-location="colorado springs, colorado us" data-category="it">
+            <div class="job-header">
+                <div class="job-title">Advanced Growth Insights & AI Analyst</div>
+                <div class="job-index">#35</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>49640</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Colorado Springs, Colorado US</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>IT</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://careers-keysight.icims.com/jobs/49640/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/49640?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://careers-keysight.icims.com/jobs/49640/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="professional services engineer" data-location="multiple" data-category="services & support">
+            <div class="job-header">
+                <div class="job-title">Professional Services Engineer</div>
+                <div class="job-index">#36</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>49770</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Multiple</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>Services & Support</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://careers-keysight.icims.com/jobs/49770/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/49770?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://careers-keysight.icims.com/jobs/49770/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="rf/uw solution engineer" data-location="multiple" data-category="sales">
+            <div class="job-header">
+                <div class="job-title">RF/uW Solution Engineer</div>
+                <div class="job-index">#37</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>49996</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Multiple</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>Sales</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://careers-keysight.icims.com/jobs/49996/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/49996?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://careers-keysight.icims.com/jobs/49996/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="fpga intern" data-location="austin, texas us" data-category="r&d">
+            <div class="job-header">
+                <div class="job-title">FPGA Intern</div>
+                <div class="job-index">#38</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>49771</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Austin, Texas US</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>R&D</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Intern</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://careers-keysight.icims.com/jobs/49771/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/49771?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://careers-keysight.icims.com/jobs/49771/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="product manager" data-location="austin, texas us" data-category="marketing">
+            <div class="job-header">
+                <div class="job-title">Product Manager</div>
+                <div class="job-index">#39</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>46718</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Austin, Texas US</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>Marketing</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://careers-keysight.icims.com/jobs/46718/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/46718?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://careers-keysight.icims.com/jobs/46718/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="r&d software engineering internship" data-location="calabasas, california us" data-category="general">
+            <div class="job-header">
+                <div class="job-title">R&D Software Engineering Internship</div>
+                <div class="job-index">#40</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>50043</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Calabasas, California US</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>General</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Intern</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://careers-keysight.icims.com/jobs/50043/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/50043?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://careers-keysight.icims.com/jobs/50043/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="r&d software engineering internship-nas/product strategy org" data-location="calabasas, california us" data-category="general">
+            <div class="job-header">
+                <div class="job-title">R&D Software Engineering Internship-NAS/Product Strategy Org</div>
+                <div class="job-index">#41</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>49839</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Calabasas, California US</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>General</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Intern</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://careers-keysight.icims.com/jobs/49839/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/49839?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://careers-keysight.icims.com/jobs/49839/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="fpga design intern" data-location="calabasas, california us" data-category="r&d">
+            <div class="job-header">
+                <div class="job-title">FPGA Design Intern</div>
+                <div class="job-index">#42</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>49983</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Calabasas, California US</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>R&D</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Intern</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://careers-keysight.icims.com/jobs/49983/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/49983?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://careers-keysight.icims.com/jobs/49983/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="fpga design intern" data-location="calabasas, california us" data-category="r&d">
+            <div class="job-header">
+                <div class="job-title">FPGA Design Intern</div>
+                <div class="job-index">#43</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>49982</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Calabasas, California US</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>R&D</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Intern</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://careers-keysight.icims.com/jobs/49982/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/49982?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://careers-keysight.icims.com/jobs/49982/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="account manager" data-location="san diego, california us" data-category="sales">
+            <div class="job-header">
+                <div class="job-title">Account Manager</div>
+                <div class="job-index">#44</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>44163</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>San Diego, California US</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>Sales</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://careers-keysight.icims.com/jobs/44163/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/44163?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://careers-keysight.icims.com/jobs/44163/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="customer service specialist" data-location="barueri, são paulo br" data-category="customer service">
+            <div class="job-header">
+                <div class="job-title">Customer Service Specialist</div>
+                <div class="job-index">#45</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>49724</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Barueri, São Paulo BR</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>Customer Service</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://globalcareers-keysight.icims.com/jobs/49724/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/49724?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://globalcareers-keysight.icims.com/jobs/49724/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="services acct mgr, advanced" data-location="tlaquepaque, jalisco mx" data-category="sales">
+            <div class="job-header">
+                <div class="job-title">Services Acct Mgr, Advanced</div>
+                <div class="job-index">#46</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>49148</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Tlaquepaque, Jalisco MX</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>Sales</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Regular</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://globalcareers-keysight.icims.com/jobs/49148/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/49148?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://globalcareers-keysight.icims.com/jobs/49148/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        <div class="job" data-title="account manager, entry" data-location="tlaquepaque, jalisco mx" data-category="sales">
+            <div class="job-header">
+                <div class="job-title">Account Manager, Entry</div>
+                <div class="job-index">#47</div>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-detail">
+                    <strong>🆔 Req ID:</strong>
+                    <span>49782</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📍 Location:</strong>
+                    <span>Tlaquepaque, Jalisco MX</span>
+                </div>
+                <div class="job-detail">
+                    <strong>🏠 Remote:</strong>
+                    <span class="remote-yes">Yes</span>
+                </div>
+                <div class="job-detail">
+                    <strong>📂 Category:</strong>
+                    <span>Sales</span>
+                </div>
+                <div class="job-detail">
+                    <strong>💼 Job Type:</strong>
+                    <span>Campus</span>
+                </div>
+            </div>
+            
+            <div class="job-actions">
+                <a href="https://globalcareers-keysight.icims.com/jobs/49782/login" target="_blank" class="btn btn-primary">✉️ Apply Now</a>
+                <a href="https://jobs.keysight.comhttps://jobs.keysight.com/external/jobs/49782?lang=en-us" target="_blank" class="btn btn-secondary">📄 View Details</a>
+                <a href="https://globalcareers-keysight.icims.com/jobs/49782/referral" target="_blank" class="btn btn-success">👥 Refer Friend</a>
+            </div>
+        </div>
+
+        </div>
+    </div>
+    
+    <script>
+        function filterJobs() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const jobs = document.querySelectorAll('.job');
+            
+            jobs.forEach(job => {
+                const title = job.getAttribute('data-title');
+                const location = job.getAttribute('data-location');
+                const category = job.getAttribute('data-category');
+                
+                if (title.includes(filter) || location.includes(filter) || category.includes(filter)) {
+                    job.style.display = '';
+                } else {
+                    job.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

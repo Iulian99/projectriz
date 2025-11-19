@@ -5,11 +5,12 @@ import AppearanceSettings from "../../components/AppearanceSettings";
 import PasswordChange from "../../components/PasswordChange";
 
 export default function SettingsPage() {
-  const { user } = useAuth();
+  const { user } = useAuth(); // get logged in user
   const [activeTab, setActiveTab] = useState<"appearance" | "password">(
     "appearance"
-  );
+  ); // active tab
 
+  // spinner loading with no user
   if (!user) {
     return (
       <div className="min-h-screen pt-20 flex items-center justify-center">

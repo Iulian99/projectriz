@@ -5,19 +5,19 @@ import { useRouter } from "next/navigation";
 export default function NewActivityPage() {
   const router = useRouter();
 
-  // Redirect către pagina zilei curente
+  // Redirectionare pagina zi curenta
   useEffect(() => {
-    // Obține data curentă
+    // Data curenta
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, "0");
     const day = String(now.getDate()).padStart(2, "0");
 
-    // Redirecționează către pagina zilnică
+    // Redirectionare pagina zilnica
     router.push(`/reports/daily/${year}/${month}/${day}`);
   }, [router]);
 
-  // Afișează un indicator de încărcare până la redirecționare
+  // Afisare indicator de incarcare pana la redirectionare
   return (
     <div className="min-h-screen bg-gray-50 pt-20 sm:pt-24 flex items-center justify-center">
       <div className="text-center">

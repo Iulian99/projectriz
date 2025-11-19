@@ -1,28 +1,13 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import bcrypt from "bcryptjs";
+import { supabase } from "@/lib/supabase";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const {
-      codUtilizator,
-      denumireUtilizator,
-      email,
-      password,
-      codFunctie,
-      codServ,
-    } = body;
-    if (
-      !codUtilizator ||
-      !denumireUtilizator ||
-      !email ||
-      !password ||
-      !codFunctie ||
-      !codServ
-    ) {
+    const { email, password } = body;
+    if (!email || !password) {
       return NextResponse.json(
-        { success: false, error: "Toate câmpurile sunt obligatorii" },
+        { success: false, error: "Email și parolă sunt obligatorii" },
         { status: 400 }
       );
     }
@@ -35,41 +20,18 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-    // Verifică cod utilizator duplicat
-    const existingCod = await prisma.nomUtilizatori.findUnique({
-      where: { codUtilizator },
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
     });
-    if (existingCod) {
+    if (error) {
       return NextResponse.json(
-        { success: false, error: "Codul de utilizator există deja" },
-        { status: 409 }
+        { success: false, error: error.message },
+        { status: 400 }
       );
     }
-    // Verifică email duplicat
-    const existingEmail = await prisma.nomUtilizatori.findUnique({
-      where: { email },
-    });
-    if (existingEmail) {
-      return NextResponse.json(
-        { success: false, error: "Emailul există deja" },
-        { status: 409 }
-      );
-    }
-    const hashedPassword = await bcrypt.hash(password, 12);
-    await prisma.nomUtilizatori.create({
-      data: {
-        codUtilizator,
-        denumireUtilizator,
-        email,
-        password: hashedPassword,
-        status: "active",
-        codFunctie,
-        codServ,
-      },
-    });
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, data });
   } catch (err: unknown) {
-    // Returnează detalii de eroare pentru debug
     let errorMsg = "Eroare la adăugare utilizator";
     if (err instanceof Error) {
       errorMsg = err.message;

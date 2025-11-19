@@ -25,6 +25,7 @@ interface ProfileUIProps {
   isSaving: boolean;
   error: string;
   success: string;
+  canEdit: boolean;
   setIsEditing: (editing: boolean) => void;
   setProfile: (profile: UserProfile) => void;
   handleSubmit: (e: React.FormEvent) => void;
@@ -41,6 +42,7 @@ export default function ProfileUI({
   isSaving,
   error,
   success,
+  canEdit,
   setIsEditing,
   setProfile,
   handleSubmit,
@@ -93,6 +95,15 @@ export default function ProfileUI({
             </div>
           )}
 
+          {!canEdit && (
+            <div className="mx-6 mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+              <p className="text-amber-800 text-sm">
+                Profilul este sincronizat din sistemul intern și poate fi doar
+                vizualizat aici.
+              </p>
+            </div>
+          )}
+
           <div className="p-6">
             {/* Informații profil */}
             <div className="grid md:grid-cols-3 gap-6">
@@ -120,7 +131,7 @@ export default function ProfileUI({
                   <p className="text-gray-500 mb-4">
                     {profile.position || "Poziție nespecificată"}
                   </p>
-                  {!isEditing && (
+                  {!isEditing && canEdit && (
                     <button
                       onClick={() => setIsEditing(true)}
                       className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold"

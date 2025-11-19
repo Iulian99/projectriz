@@ -1,282 +1,255 @@
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
-import { useAuth, useRole } from "../contexts/AuthContext";
-import LoadingSpinner from "@/components/LoadingSpinner";
+import React, { useState, useEffect } from "react";
+import { useAuth } from "@/app/contexts/AuthContext";
+import { useRouter } from "next/navigation";
 
 interface TeamMember {
   id: number;
   name: string;
-  identifier: string;
   position: string;
+  identifier: number;
   department: string;
+  email: string;
+  backgroundColor: string;
 }
 
-interface ActivitySummary {
+interface Activity {
   id: number;
-  userId: number;
-  userName: string;
   date: string;
   activity: string;
   work: string;
+  baseAct: string;
   status: string;
+  mainActivities: number;
+  relatedActivities: number;
+  nonProductiveActivities: number;
   timeSpent: number;
-  formattedDuration: string;
 }
 
 interface MemberStats {
-  userId: number;
   totalActivities: number;
-  monthlyActivities: number;
-  totalHours: number;
-  monthlyHours: number;
-  completionRate: number;
-  progressPercentage: number;
+  totalMinutes: number;
+  completedActivities: number;
+  inProgressActivities: number;
 }
 
 export default function TeamReportsPage() {
-  const { user } = useAuth();
-  const { isManager, isAdmin } = useRole();
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [selectedMember, setSelectedMember] = useState<number | null>(null);
-  const [activities, setActivities] = useState<ActivitySummary[]>([]);
-  const [allActivities, setAllActivities] = useState<ActivitySummary[]>([]);
+  const [activities, setActivities] = useState<Activity[]>([]);
   const [memberStats, setMemberStats] = useState<Map<number, MemberStats>>(
     new Map()
   );
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState({
-    start: new Date(new Date().setDate(1)).toISOString().split("T")[0],
+    start: new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+      .toISOString()
+      .split("T")[0],
     end: new Date().toISOString().split("T")[0],
   });
-  const [exportingMember, setExportingMember] = useState<number | null>(null);
 
-  const calculateMemberStats = useCallback(
-    (activities: ActivitySummary[]): MemberStats => {
-      const currentMonth = new Date().getMonth();
-      const currentYear = new Date().getFullYear();
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user) {
+      router.push("/login");
+      return;
+    }
 
-      const monthlyActivities = activities.filter((activity) => {
-        const activityDate = new Date(activity.date);
-        return (
-          activityDate.getMonth() === currentMonth &&
-          activityDate.getFullYear() === currentYear
-        );
-      });
+    fetchTeamMembers();
+  }, [user, authLoading, router]);
 
-      const completedActivities = activities.filter(
-        (activity) => activity.status === "Completat"
-      );
+  const fetchTeamMembers = async () => {
+    if (!user) return;
 
-      const totalHours =
-        activities.reduce(
-          (sum, activity) => sum + (activity.timeSpent || 0),
-          0
-        ) / 60;
-      const monthlyHours =
-        monthlyActivities.reduce(
-          (sum, activity) => sum + (activity.timeSpent || 0),
-          0
-        ) / 60;
+    setIsLoading(true);
+    setError(null);
 
-      const completionRate =
-        activities.length > 0
-          ? (completedActivities.length / activities.length) * 100
-          : 0;
-      const monthlyTarget = 160;
-      const progressPercentage = Math.min(
-        (monthlyHours / monthlyTarget) * 100,
-        100
-      );
-
-      return {
-        userId: activities[0]?.userId || 0,
-        totalActivities: activities.length,
-        monthlyActivities: monthlyActivities.length,
-        totalHours: totalHours,
-        monthlyHours: monthlyHours,
-        completionRate: Math.round(completionRate),
-        progressPercentage: Math.round(progressPercentage),
-      };
-    },
-    []
-  );
-
-  const handleExportExcel = async (memberId: number, memberName: string) => {
-    setExportingMember(memberId);
     try {
-      const response = await fetch(
-        `/api/reports/excel?userId=${memberId}&startDate=${dateRange.start}&endDate=${dateRange.end}`
-      );
+      const response = await fetch(`/api/team-members?userId=${user.id}`);
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error("Failed to generate Excel report");
+        throw new Error(data.error || "Eroare la încărcarea echipei");
       }
 
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.style.display = "none";
-      a.href = url;
+      setTeamMembers(data.members || []);
 
-      const startDate = new Date(dateRange.start).toLocaleDateString("ro-RO");
-      const endDate = new Date(dateRange.end).toLocaleDateString("ro-RO");
-      const fileName = `Raport_${memberName.replace(
-        /\s+/g,
-        "_"
-      )}_${startDate}-${endDate}.xlsx`;
-
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error("Error exporting Excel:", error);
-      alert("Eroare la generarea raportului Excel. Încercați din nou.");
+      // Încarcă statisticile pentru fiecare membru
+      const statsMap = new Map<number, MemberStats>();
+      for (const member of data.members || []) {
+        const stats = await fetchMemberStats(member.id);
+        if (stats) {
+          statsMap.set(member.id, stats);
+        }
+      }
+      setMemberStats(statsMap);
+    } catch (err: any) {
+      console.error("Error fetching team members:", err);
+      setError(err.message);
     } finally {
-      setExportingMember(null);
+      setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    const fetchTeamMembers = async () => {
-      if (!isManager && !isAdmin) {
-        setIsLoading(false);
-        return;
+  const fetchMemberStats = async (
+    memberId: number
+  ): Promise<MemberStats | null> => {
+    try {
+      const response = await fetch(
+        `/api/data?userId=${memberId}&startDate=${dateRange.start}&endDate=${dateRange.end}`
+      );
+      if (!response.ok) return null;
+
+      const data = await response.json();
+      const activities = data.data || [];
+
+      // Calculate total minutes from the three fields
+      const totalMinutes = activities.reduce((sum: number, act: any) => {
+        const main = parseInt(act.mainActivities) || 0;
+        const related = parseInt(act.relatedActivities) || 0;
+        const nonProd = parseInt(act.nonProductiveActivities) || 0;
+        return sum + main + related + nonProd;
+      }, 0);
+
+      return {
+        totalActivities: activities.length,
+        totalMinutes: totalMinutes,
+        completedActivities: activities.filter(
+          (act: any) =>
+            act.status === "Completat" || act.activityType === "INDIVIDUALA"
+        ).length,
+        inProgressActivities: activities.filter(
+          (act: any) => act.status === "În curs"
+        ).length,
+      };
+    } catch (error) {
+      console.error(`Error fetching stats for member ${memberId}:`, error);
+      return null;
+    }
+  };
+
+  const fetchMemberActivities = async (memberId: number) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch(
+        `/api/data?userId=${memberId}&startDate=${dateRange.start}&endDate=${dateRange.end}`
+      );
+      if (!response.ok) {
+        throw new Error("Eroare la încărcarea activităților");
       }
 
-      try {
-        const response = await fetch(
-          `/api/users/subordinates?managerId=${user?.id}`
-        );
-        if (!response.ok) throw new Error("Failed to fetch team members");
+      const data = await response.json();
 
-        const data = await response.json();
-        const members = data.users || [];
-        setTeamMembers(members);
+      // Mapează datele din format raport la format Activity
+      const mappedActivities = (data.data || []).map((item: any) => ({
+        id: item.id,
+        date: item.date,
+        activity: item.activity,
+        work: item.work,
+        baseAct: item.baseAct || "",
+        status:
+          item.activityType === "INDIVIDUALA"
+            ? "Completat"
+            : item.status || "Completat",
+        mainActivities: parseInt(item.mainActivities) || 0,
+        relatedActivities: parseInt(item.relatedActivities) || 0,
+        nonProductiveActivities: parseInt(item.nonProductiveActivities) || 0,
+        timeSpent: parseInt(item.timeSpent) || 0,
+      }));
 
-        const statsMap = new Map<number, MemberStats>();
+      setActivities(mappedActivities);
+    } catch (err: any) {
+      console.error("Error fetching activities:", err);
+      setError(err.message);
+      setActivities([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-        for (const member of members) {
-          try {
-            const activitiesResponse = await fetch(
-              `/api/data?userId=${member.id}`
-            );
-            if (activitiesResponse.ok) {
-              const activitiesData = await activitiesResponse.json();
-              const memberActivities = activitiesData.data || [];
+  const handleMemberSelect = (memberId: number) => {
+    setSelectedMember(memberId);
+    fetchMemberActivities(memberId);
+  };
 
-              if (memberActivities.length > 0) {
-                const stats = calculateMemberStats(memberActivities);
-                statsMap.set(member.id, stats);
-              }
-            }
-          } catch (error) {
-            console.error(
-              `Error fetching activities for member ${member.id}:`,
-              error
-            );
-          }
-        }
+  const formatMinutes = (minutes: number): string => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours}h ${mins}m`;
+  };
 
-        setMemberStats(statsMap);
-      } catch (error) {
-        console.error("Error fetching team members:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const getPositionBadge = (position: string) => {
+    if (position === "consilier") {
+      return "bg-pink-100 text-pink-700 border-pink-200";
+    }
+    return "bg-purple-100 text-purple-700 border-purple-200";
+  };
 
-    fetchTeamMembers();
-  }, [user?.id, isManager, isAdmin, calculateMemberStats]);
+  const getPositionLabel = (position: string) => {
+    if (position === "consilier") return "Consilier";
+    if (position === "expert") return "Expert";
+    return position;
+  };
 
-  useEffect(() => {
-    const fetchActivities = async () => {
-      if (!selectedMember) return;
-
-      setIsLoading(true);
-      try {
-        const periodResponse = await fetch(
-          `/api/data?userId=${selectedMember}&startDate=${dateRange.start}&endDate=${dateRange.end}`
-        );
-
-        const allResponse = await fetch(`/api/data?userId=${selectedMember}`);
-
-        if (!periodResponse.ok || !allResponse.ok) {
-          throw new Error("Failed to fetch activities");
-        }
-
-        const periodData = await periodResponse.json();
-        const allData = await allResponse.json();
-
-        const processActivities = (data: ActivitySummary[]) =>
-          data.map((activity: ActivitySummary) => {
-            const hours = Math.floor(activity.timeSpent / 60);
-            const mins = activity.timeSpent % 60;
-            const formattedDuration = `${hours
-              .toString()
-              .padStart(2, "0")}:${mins.toString().padStart(2, "0")}`;
-
-            return {
-              ...activity,
-              formattedDuration,
-            };
-          });
-
-        setActivities(processActivities(periodData.data || []));
-        setAllActivities(processActivities(allData.data || []));
-
-        if (allData.data && allData.data.length > 0) {
-          const stats = calculateMemberStats(allData.data);
-          setMemberStats((prev) => new Map(prev.set(selectedMember, stats)));
-        }
-      } catch (error) {
-        console.error("Error fetching activities:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchActivities();
-  }, [selectedMember, dateRange, calculateMemberStats]);
-
-  if (!isManager && !isAdmin) {
+  if (authLoading || isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-20 sm:pt-24">
-        <div className="container mx-auto px-6 py-8">
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
-            Nu aveți permisiunea de a accesa această pagină. Doar managerii pot
-            vedea rapoartele echipei.
-          </div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 pt-20 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-slate-600">Se încarcă...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20 sm:pt-24">
-      <div className="container mx-auto px-6 py-4">
-        <div className="mb-6">
-          <div className="text-center mb-4">
-            <h1 className="text-3xl font-bold text-gray-900">
-              Rapoartele Echipei
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 pt-20">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-blue-700">
+              Manager
+            </span>
+            <h1 className="text-4xl font-bold text-slate-900">
+              Rapoarte Echipă
             </h1>
           </div>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <div className="flex flex-col">
-              <label className="block text-sm text-gray-600 mb-1">De la:</label>
+          <p className="text-slate-600 mt-2">
+            Monitorizează activitatea și progresul membrilor echipei tale
+          </p>
+        </div>
+
+        {error && (
+          <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {error}
+          </div>
+        )}
+
+        {/* Filtru perioadă */}
+        <div className="mb-6 rounded-3xl border border-slate-200/60 bg-white p-6 shadow-xl">
+          <div className="flex flex-wrap items-end gap-4">
+            <div className="flex-1 min-w-[200px]">
+              <label className="mb-2 block text-sm font-semibold text-slate-700">
+                Data început
+              </label>
               <input
                 type="date"
                 value={dateRange.start}
                 onChange={(e) =>
                   setDateRange({ ...dateRange, start: e.target.value })
                 }
-                className="border-gray-300 rounded-md shadow-sm"
+                className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
-            <div className="flex flex-col">
-              <label className="block text-sm text-gray-600 mb-1">
-                Până la:
+            <div className="flex-1 min-w-[200px]">
+              <label className="mb-2 block text-sm font-semibold text-slate-700">
+                Data sfârșit
               </label>
               <input
                 type="date"
@@ -284,258 +257,269 @@ export default function TeamReportsPage() {
                 onChange={(e) =>
                   setDateRange({ ...dateRange, end: e.target.value })
                 }
-                className="border-gray-300 rounded-md shadow-sm"
+                className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
+            <button
+              onClick={fetchTeamMembers}
+              className="rounded-xl bg-gradient-to-r from-blue-600 to-sky-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:shadow-xl hover:from-blue-700 hover:to-sky-700"
+            >
+              Actualizează
+            </button>
           </div>
         </div>
 
-        {isLoading ? (
-          <LoadingSpinner />
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-medium text-gray-900 mb-4">
-                Membri Echipă
+        <div className="grid gap-6 lg:grid-cols-3">
+          {/* Lista membri echipă */}
+          <div className="lg:col-span-1">
+            <div className="rounded-3xl border border-slate-200/60 bg-white p-6 shadow-xl">
+              <h2 className="mb-4 text-lg font-bold text-slate-900">
+                Membrii Echipei ({teamMembers.length})
               </h2>
-              <div className="mb-6">
-                {teamMembers.length > 0 ? (
-                  <div className="space-y-2">
-                    {teamMembers.map((member) => {
-                      const stats = memberStats.get(member.id);
-                      return (
-                        <div
-                          key={member.id}
-                          className={`border rounded-lg p-3 ${
-                            selectedMember === member.id
-                              ? "bg-blue-50 border-blue-200"
-                              : "bg-white border-gray-200 hover:bg-gray-50"
-                          }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <button
-                              onClick={() => setSelectedMember(member.id)}
-                              className="flex-1 text-left"
-                            >
-                              <div className="font-medium text-gray-900">
-                                {member.name}
-                              </div>
-                              <div className="text-sm text-gray-500">
-                                {member.position || "Fără poziție"}
-                              </div>
-                              <div className="text-xs text-gray-400">
-                                {member.department}
-                              </div>
-                              {stats && (
-                                <div className="mt-2 space-y-1">
-                                  <div className="text-xs text-blue-600">
-                                    Luna curentă: {stats.monthlyActivities}{" "}
-                                    activități ({Math.round(stats.monthlyHours)}
-                                    h)
-                                  </div>
-                                  <div className="text-xs text-gray-600">
-                                    Total: {stats.totalActivities} activități (
-                                    {Math.round(stats.totalHours)}h)
-                                  </div>
-                                  <div className="flex items-center space-x-2">
-                                    <div className="text-xs text-green-600 font-medium">
-                                      Progres: {stats.progressPercentage}%
-                                    </div>
-                                    <div className="flex-1 bg-gray-200 rounded-full h-2">
-                                      <div
-                                        className="bg-green-500 h-2 rounded-full transition-all duration-300"
-                                        style={{
-                                          width: `${Math.min(
-                                            stats.progressPercentage,
-                                            100
-                                          )}%`,
-                                        }}
-                                      ></div>
-                                    </div>
-                                  </div>
-                                  <div className="text-xs text-purple-600">
-                                    Completare: {stats.completionRate}%
-                                  </div>
-                                </div>
-                              )}
-                            </button>
-                            <button
-                              onClick={() =>
-                                handleExportExcel(member.id, member.name)
-                              }
-                              disabled={exportingMember === member.id}
-                              className="ml-3 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-green-300 disabled:cursor-not-allowed"
-                              title={`Export Excel pentru ${member.name}`}
-                            >
-                              {exportingMember === member.id ? (
-                                <span className="flex items-center">
-                                  <svg
-                                    className="animate-spin -ml-1 mr-1 h-3 w-3 text-white"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <circle
-                                      className="opacity-25"
-                                      cx="12"
-                                      cy="12"
-                                      r="10"
-                                      stroke="currentColor"
-                                      strokeWidth="4"
-                                    ></circle>
-                                    <path
-                                      className="opacity-75"
-                                      fill="currentColor"
-                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                    ></path>
-                                  </svg>
-                                  Export...
-                                </span>
-                              ) : (
-                                <span className="flex items-center">
-                                  <svg
-                                    className="-ml-1 mr-1 h-3 w-3"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={2}
-                                      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                    />
-                                  </svg>
-                                  Excel
-                                </span>
-                              )}
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="text-gray-500 text-sm">
-                    Nu există membri în echipa dumneavoastră.
-                  </div>
-                )}
-              </div>
-            </div>
 
-            <div className="lg:col-span-3">
-              {selectedMember ? (
-                <div className="space-y-6">
-                  <div className="bg-white rounded-lg shadow overflow-hidden">
-                    <div className="p-6 border-b">
-                      <h2 className="text-xl font-bold">
-                        {teamMembers.find((m) => m.id === selectedMember)
-                          ?.name || "Membru selectat"}
-                      </h2>
-                      <p className="text-gray-600">
-                        Activități în perioada:{" "}
-                        {new Date(dateRange.start).toLocaleDateString("ro-RO")}{" "}
-                        - {new Date(dateRange.end).toLocaleDateString("ro-RO")}
-                      </p>
-
-                      {memberStats.get(selectedMember) && (
-                        <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-                          <div className="bg-blue-50 p-3 rounded-lg">
-                            <div className="text-sm font-medium text-blue-900">
-                              Luna Curentă
-                            </div>
-                            <div className="text-lg font-bold text-blue-700">
-                              {
-                                memberStats.get(selectedMember)
-                                  ?.monthlyActivities
-                              }{" "}
-                              activități
-                            </div>
-                            <div className="text-sm text-blue-600">
-                              {Math.round(
-                                memberStats.get(selectedMember)?.monthlyHours ||
-                                  0
-                              )}{" "}
-                              ore
-                            </div>
-                          </div>
-                          <div className="bg-green-50 p-3 rounded-lg">
-                            <div className="text-sm font-medium text-green-900">
-                              Total Activități
-                            </div>
-                            <div className="text-lg font-bold text-green-700">
-                              {memberStats.get(selectedMember)?.totalActivities}
-                            </div>
-                            <div className="text-sm text-green-600">
-                              {Math.round(
-                                memberStats.get(selectedMember)?.totalHours || 0
-                              )}{" "}
-                              ore totale
-                            </div>
-                          </div>
-                          <div className="bg-purple-50 p-3 rounded-lg">
-                            <div className="text-sm font-medium text-purple-900">
-                              Progres Lunar
-                            </div>
-                            <div className="text-lg font-bold text-purple-700">
-                              {
-                                memberStats.get(selectedMember)
-                                  ?.progressPercentage
-                              }
-                              %
-                            </div>
-                            <div className="text-sm text-purple-600">
-                              din 160h obiectiv
-                            </div>
-                          </div>
-                          <div className="bg-orange-50 p-3 rounded-lg">
-                            <div className="text-sm font-medium text-orange-900">
-                              Rata Completare
-                            </div>
-                            <div className="text-lg font-bold text-orange-700">
-                              {memberStats.get(selectedMember)?.completionRate}%
-                            </div>
-                            <div className="text-sm text-orange-600">
-                              activități finalizate
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="bg-white rounded-lg shadow overflow-hidden">
-                    <div className="p-4 border-b bg-gray-50">
-                      <h3 className="text-lg font-medium text-gray-900">
-                        Activități în Perioada Selectată ({activities.length})
-                      </h3>
-                    </div>
-                    <div className="p-6 text-center text-gray-500">
-                      Implementarea tabelului cu activități va fi adăugată în
-                      pasul următor.
-                    </div>
-                  </div>
-
-                  <div className="bg-white rounded-lg shadow overflow-hidden">
-                    <div className="p-4 border-b bg-gray-50">
-                      <h3 className="text-lg font-medium text-gray-900">
-                        Toate Activitățile ({allActivities.length})
-                      </h3>
-                    </div>
-                    <div className="p-6 text-center text-gray-500">
-                      Implementarea tabelului cu toate activitățile va fi
-                      adăugată în pasul următor.
-                    </div>
-                  </div>
+              {teamMembers.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 p-6 text-center">
+                  <p className="text-sm text-slate-600">
+                    Nu există membri în echipa ta
+                  </p>
                 </div>
               ) : (
-                <div className="bg-white rounded-lg shadow p-6 text-center text-gray-500">
-                  Selectați un membru al echipei pentru a vizualiza activitățile
-                  acestuia.
+                <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
+                  {teamMembers.map((member) => {
+                    const stats = memberStats.get(member.id);
+                    const isSelected = selectedMember === member.id;
+
+                    return (
+                      <button
+                        key={member.id}
+                        onClick={() => handleMemberSelect(member.id)}
+                        className={`w-full rounded-2xl border-2 p-4 text-left transition-all ${
+                          isSelected
+                            ? "border-blue-500 bg-blue-50 shadow-lg"
+                            : "border-slate-200 bg-white hover:border-blue-300 hover:shadow-md"
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div
+                            className="h-10 w-10 rounded-full flex items-center justify-center text-sm font-bold text-slate-700 shadow-sm"
+                            style={{
+                              backgroundColor:
+                                member.backgroundColor || "#e2e8f0",
+                            }}
+                          >
+                            {member.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")
+                              .toUpperCase()
+                              .slice(0, 2)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-slate-900 truncate">
+                              {member.name}
+                            </p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span
+                                className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${getPositionBadge(
+                                  member.position
+                                )}`}
+                              >
+                                {getPositionLabel(member.position)}
+                              </span>
+                            </div>
+                            {stats && (
+                              <div className="mt-2 text-xs text-slate-600">
+                                <div className="flex justify-between">
+                                  <span>Activități:</span>
+                                  <span className="font-semibold">
+                                    {stats.totalActivities}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>Total minute:</span>
+                                  <span className="font-semibold">
+                                    {stats.totalMinutes}
+                                  </span>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </div>
           </div>
-        )}
+
+          {/* Detalii activități membru selectat */}
+          <div className="lg:col-span-2">
+            {!selectedMember ? (
+              <div className="rounded-3xl border border-slate-200/60 bg-white p-8 shadow-xl text-center">
+                <svg
+                  className="mx-auto h-16 w-16 text-slate-300"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                  />
+                </svg>
+                <p className="mt-4 text-lg font-medium text-slate-600">
+                  Selectează un membru din echipă
+                </p>
+                <p className="mt-2 text-sm text-slate-500">
+                  Vei vedea aici toate activitățile și statisticile
+                </p>
+              </div>
+            ) : (
+              <div className="rounded-3xl border border-slate-200/60 bg-white p-6 shadow-xl">
+                <div className="mb-6 flex items-center justify-between">
+                  <div>
+                    <h2 className="text-2xl font-bold text-slate-900">
+                      {teamMembers.find((m) => m.id === selectedMember)?.name}
+                    </h2>
+                    <p className="text-sm text-slate-600 mt-1">
+                      Perioada:{" "}
+                      {new Date(dateRange.start).toLocaleDateString("ro-RO")} -{" "}
+                      {new Date(dateRange.end).toLocaleDateString("ro-RO")}
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">
+                    {activities.length} activități
+                  </span>
+                </div>
+
+                {/* Statistici */}
+                {memberStats.get(selectedMember) && (
+                  <div className="mb-6 grid gap-4 sm:grid-cols-2">
+                    <div className="rounded-2xl border-2 border-slate-200 bg-gradient-to-br from-white to-slate-50 p-4">
+                      <p className="text-sm font-semibold text-slate-600">
+                        Total minute
+                      </p>
+                      <p className="mt-1 text-3xl font-bold text-slate-900">
+                        {memberStats.get(selectedMember)?.totalMinutes || 0}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {formatMinutes(
+                          memberStats.get(selectedMember)?.totalMinutes || 0
+                        )}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border-2 border-slate-200 bg-gradient-to-br from-white to-slate-50 p-4">
+                      <p className="text-sm font-semibold text-slate-600">
+                        Completate
+                      </p>
+                      <p className="mt-1 text-3xl font-bold text-green-600">
+                        {memberStats.get(selectedMember)?.completedActivities ||
+                          0}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        din{" "}
+                        {memberStats.get(selectedMember)?.totalActivities || 0}{" "}
+                        activități
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Lista activități */}
+                <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
+                  {activities.length === 0 ? (
+                    <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 p-8 text-center">
+                      <p className="text-sm text-slate-600">
+                        Nu există activități în perioada selectată
+                      </p>
+                    </div>
+                  ) : (
+                    activities.map((activity) => {
+                      const totalMinutes =
+                        (activity.mainActivities || 0) +
+                        (activity.relatedActivities || 0) +
+                        (activity.nonProductiveActivities || 0);
+
+                      return (
+                        <div
+                          key={activity.id}
+                          className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow"
+                        >
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="text-xs font-semibold text-slate-500">
+                                  {new Date(activity.date).toLocaleDateString(
+                                    "ro-RO"
+                                  )}
+                                </span>
+                                <span
+                                  className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${
+                                    activity.status === "Completat"
+                                      ? "bg-green-100 text-green-700 border-green-200"
+                                      : "bg-yellow-100 text-yellow-700 border-yellow-200"
+                                  }`}
+                                >
+                                  {activity.status}
+                                </span>
+                              </div>
+                              <p className="font-semibold text-slate-900">
+                                {activity.activity}
+                              </p>
+                              <p className="mt-1 text-sm text-slate-600">
+                                {activity.work}
+                              </p>
+                              {activity.baseAct && (
+                                <p className="mt-1 text-xs text-slate-500">
+                                  Act: {activity.baseAct}
+                                </p>
+                              )}
+                            </div>
+                            <div className="text-right">
+                              <p className="text-2xl font-bold text-slate-900">
+                                {totalMinutes}
+                              </p>
+                              <p className="text-xs text-slate-500">minute</p>
+                            </div>
+                          </div>
+
+                          {/* Breakdown minute */}
+                          <div className="mt-3 grid grid-cols-3 gap-2 rounded-xl bg-slate-50 p-3">
+                            <div>
+                              <p className="text-xs text-slate-600">
+                                Principale
+                              </p>
+                              <p className="text-sm font-semibold text-slate-900">
+                                {activity.mainActivities || 0}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-slate-600">Conexe</p>
+                              <p className="text-sm font-semibold text-slate-900">
+                                {activity.relatedActivities || 0}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-slate-600">
+                                Neproductive
+                              </p>
+                              <p className="text-sm font-semibold text-slate-900">
+                                {activity.nonProductiveActivities || 0}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

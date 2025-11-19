@@ -12,7 +12,9 @@ const Navbar: React.FC = () => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const pathname = usePathname();
   const { user, logout } = useAuth();
-  // const { isDarkMode } = useBackgroundColor(); // Commented out as it's not used
+  const { role } = useRole();
+
+  // const isManager = role ? ["sef", "director"].includes(role) : false;
 
   const handleLogout = async () => {
     try {
@@ -36,6 +38,7 @@ const Navbar: React.FC = () => {
   // Elemente de navigare pentru manageri și administratori
   const managerNavigationItems = [
     { href: "/team-reports", label: "Rapoarte Echipă" },
+    { href: "/register", label: "Adăugare Utilizator" }, // Added for sef and director roles
   ];
 
   // Combinăm elementele de navigare în funcție de rol

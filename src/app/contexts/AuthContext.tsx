@@ -32,13 +32,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Pagini care nu necesită autentificare
-const publicPages = [
-  "/login",
-  "/register",
-  "/forgot-password",
-  "/",
-  "/add-user",
-];
+const publicPages = ["/login", "/register", "/forgot-password", "/"];
 
 interface AuthProviderProps {
   children: ReactNode;

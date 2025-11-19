@@ -43,6 +43,7 @@ const PasswordChange: React.FC<PasswordChangeProps> = ({
         },
         body: JSON.stringify({
           userId: user.id,
+          identifier: user.identifier,
           currentPassword: passwordData.currentPassword,
           newPassword: passwordData.newPassword,
         }),
